@@ -1,8 +1,8 @@
 seed: 0
 mode: human
 output_path: output
-exp_name: hugs_bike_test ##20240303_1758_release_test
-dataset_path: 'data/neuman/dataset/bike' ##''
+exp_name: hugs_citron_test ##20240303_1758_release_test
+dataset_path: 'data/neuman/dataset/citron' ##''
 detect_anomaly: false
 debug: false
 wandb: false
@@ -10,14 +10,15 @@ eval: false
 bg_color: white
 dataset:
   name: neuman
-  seq: ["citron", "seattle", "bike", "lab", "jogging", "parkinglot"]
+  seq: ["citron"]
+  ##seq: ["citron", "seattle", "bike", "lab", "jogging", "parkinglot"]
 train:
   batch_size: 1
   num_workers: 0
-  num_steps: 14998
-  save_ckpt_interval: 15000
-  val_interval: 1000
-  anim_interval: 15000
+  num_steps: 10000 ##14998
+  save_ckpt_interval: 10000 ##15000
+  val_interval: 4000 ##1000
+  anim_interval: 8000 ##15000
   optim_scene: true
   save_progress_images: false
   progress_save_interval: 10
@@ -37,7 +38,7 @@ human:
   init_scale_multiplier: 0.5
   run_init: false
   estimate_delta: true
-  triplane_res: 256
+  triplane_res: 128 ##256
   optim_pose: true
   optim_betas: false
   optim_trans: true
@@ -79,14 +80,14 @@ human:
     num_patches: 4
     patch_size: 128
     use_patches: 1
-  densification_interval: 600
+  densification_interval: 200 ##600
   opacity_reset_interval: 3000
-  densify_from_iter: 3000
-  densify_until_iter: 8000 ##15000
+  densify_from_iter: 500 ##3000
+  densify_until_iter: 5000 ##15000
   densify_grad_threshold: 0.0002
-  prune_min_opacity: 0.005
-  densify_extent: 1.0
-  max_n_gaussians: 524288
+  prune_min_opacity: 0.01 ##0.005
+  densify_extent: 2.0 ##1.0
+  max_n_gaussians: 1e5 ##524288
   percent_dense: 0.01
 scene:
   name: scene_gs

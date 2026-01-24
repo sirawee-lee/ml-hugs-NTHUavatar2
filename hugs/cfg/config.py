@@ -11,7 +11,7 @@ cfg.seed = 0
 cfg.mode = 'human' # 'human_scene' or 'scene'
 cfg.output_path = 'output'
 cfg.cfg_file = ''
-cfg.exp_name = 'hugs_test_bike'
+cfg.exp_name = 'hugs_test_citron'
 cfg.dataset_path = 'data/neuman/dataset/' ##''
 cfg.detect_anomaly = False
 cfg.debug = False
@@ -24,16 +24,16 @@ cfg.bg_color = 'white'
 # human dataset configuration
 cfg.dataset = OmegaConf.create()
 cfg.dataset.name = 'neuman' # 'zju', 'colmap', 'people_snapshot', 'itw'
-cfg.dataset.seq = 'bike' ##'lab'
+cfg.dataset.seq = 'citron' ##'lab'
 
 # training configuration
 cfg.train = OmegaConf.create()
 cfg.train.batch_size = 1
 cfg.train.num_workers = 0
 cfg.train.num_steps = 10_000 #30_000
-cfg.train.save_ckpt_interval = 4000
-cfg.train.val_interval = 2000
-cfg.train.anim_interval = 4000
+cfg.train.save_ckpt_interval = 10000 ##4000
+cfg.train.val_interval = 4000 ##2000
+cfg.train.anim_interval = 8000 ##4000
 cfg.train.optim_scene = True
 cfg.train.save_progress_images = False
 cfg.train.progress_save_interval = 10
@@ -108,12 +108,12 @@ cfg.human.loss.patch_size = 128
 cfg.human.loss.use_patches = 1
 
 # human model densification configuration
-cfg.human.densification_interval = 100
+cfg.human.densification_interval = 200 ##100
 cfg.human.opacity_reset_interval = 3000
 cfg.human.densify_from_iter = 500
-cfg.human.densify_until_iter = 15_000
+cfg.human.densify_until_iter = 5000 ##15_000
 cfg.human.densify_grad_threshold = 0.0002
-cfg.human.prune_min_opacity = 0.005
+cfg.human.prune_min_opacity = 0.01 ##0.005
 cfg.human.densify_extent = 2.0
 cfg.human.max_n_gaussians = 1e5 ##2e5
 
@@ -141,12 +141,12 @@ cfg.scene.lr.feature = 0.0025
 
 # scene model densification configuration
 cfg.scene.percent_dense = 0.01
-cfg.scene.densification_interval = 100
+cfg.scene.densification_interval = 200 ##100
 cfg.scene.opacity_reset_interval = 1800 ##3000
 cfg.scene.densify_from_iter = 500
-cfg.scene.densify_until_iter = 7000 ##15_000
+cfg.scene.densify_until_iter = 5000 ##15_000
 cfg.scene.densify_grad_threshold = 0.0002
-cfg.scene.prune_min_opacity = 0.005
+cfg.scene.prune_min_opacity = 0.01 ##0.005
 cfg.scene.max_n_gaussians = 5e5 ##2e6
 
 # scene model loss coefficients
