@@ -1,8 +1,8 @@
 seed: 0
 mode: human
 output_path: output
-exp_name: 20240303_1758_release_test
-dataset_path: ''
+exp_name: hugs_bike_test ##20240303_1758_release_test
+dataset_path: 'data/neuman/dataset/bike' ##''
 detect_anomaly: false
 debug: false
 wandb: false
@@ -82,7 +82,7 @@ human:
   densification_interval: 600
   opacity_reset_interval: 3000
   densify_from_iter: 3000
-  densify_until_iter: 15000
+  densify_until_iter: 8000 ##15000
   densify_grad_threshold: 0.0002
   prune_min_opacity: 0.005
   densify_extent: 1.0
@@ -112,7 +112,7 @@ scene:
   densification_interval: 100
   opacity_reset_interval: 20000
   densify_from_iter: 500
-  densify_until_iter: 15000
+  densify_until_iter: 8000 ##15000
   densify_grad_threshold: 0.0002
   prune_min_opacity: 0.005
   max_n_gaussians: 2097152

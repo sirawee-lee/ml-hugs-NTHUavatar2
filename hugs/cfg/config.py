@@ -11,8 +11,8 @@ cfg.seed = 0
 cfg.mode = 'human' # 'human_scene' or 'scene'
 cfg.output_path = 'output'
 cfg.cfg_file = ''
-cfg.exp_name = 'test'
-cfg.dataset_path = ''
+cfg.exp_name = 'hugs_test_bike'
+cfg.dataset_path = 'data/neuman/dataset/' ##''
 cfg.detect_anomaly = False
 cfg.debug = False
 cfg.wandb = False
@@ -24,13 +24,13 @@ cfg.bg_color = 'white'
 # human dataset configuration
 cfg.dataset = OmegaConf.create()
 cfg.dataset.name = 'neuman' # 'zju', 'colmap', 'people_snapshot', 'itw'
-cfg.dataset.seq = 'citron'
+cfg.dataset.seq = 'bike' ##'lab'
 
 # training configuration
 cfg.train = OmegaConf.create()
 cfg.train.batch_size = 1
 cfg.train.num_workers = 0
-cfg.train.num_steps = 30_000
+cfg.train.num_steps = 10_000 #30_000
 cfg.train.save_ckpt_interval = 4000
 cfg.train.val_interval = 2000
 cfg.train.anim_interval = 4000
@@ -42,7 +42,7 @@ cfg.train.progress_save_interval = 10
 cfg.human = OmegaConf.create()
 cfg.human.name = 'hugs'
 cfg.human.ckpt = None
-cfg.human.sh_degree = 3
+cfg.human.sh_degree = 1
 cfg.human.n_subdivision = 0
 cfg.human.only_rgb = False
 cfg.human.use_surface = False
@@ -56,7 +56,7 @@ cfg.human.isotropic = False
 cfg.human.init_scale_multiplier = 1.0
 cfg.human.run_init = False
 cfg.human.estimate_delta = True
-cfg.human.triplane_res = 256
+cfg.human.triplane_res = 128 #256
 
 cfg.human.optim_pose = False
 cfg.human.optim_betas = False
@@ -115,13 +115,13 @@ cfg.human.densify_until_iter = 15_000
 cfg.human.densify_grad_threshold = 0.0002
 cfg.human.prune_min_opacity = 0.005
 cfg.human.densify_extent = 2.0
-cfg.human.max_n_gaussians = 2e5
+cfg.human.max_n_gaussians = 1e5 ##2e5
 
 # scene model configuration
 cfg.scene = OmegaConf.create()
 cfg.scene.name = 'scene_gs'
 cfg.scene.ckpt = None
-cfg.scene.sh_degree = 3
+cfg.scene.sh_degree = 1
 cfg.scene.add_bg_points = False
 cfg.scene.num_bg_points = 204_800
 cfg.scene.bg_sphere_dist = 5.0
@@ -142,12 +142,12 @@ cfg.scene.lr.feature = 0.0025
 # scene model densification configuration
 cfg.scene.percent_dense = 0.01
 cfg.scene.densification_interval = 100
-cfg.scene.opacity_reset_interval = 3000
+cfg.scene.opacity_reset_interval = 1800 ##3000
 cfg.scene.densify_from_iter = 500
-cfg.scene.densify_until_iter = 15_000
+cfg.scene.densify_until_iter = 7000 ##15_000
 cfg.scene.densify_grad_threshold = 0.0002
 cfg.scene.prune_min_opacity = 0.005
-cfg.scene.max_n_gaussians = 2e6
+cfg.scene.max_n_gaussians = 5e5 ##2e6
 
 # scene model loss coefficients
 cfg.scene.loss = OmegaConf.create()
