@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/main.py", line 18, in <module>
+    from hugs.trainer import GaussianTrainer
+  File "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/hugs/trainer/__init__.py", line 6, in <module>
+    from .gs_trainer import GaussianTrainer
+  File "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/hugs/trainer/gs_trainer.py", line 18, in <module>
+    from hugs.datasets.utils import (
+  File "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/hugs/datasets/__init__.py", line 6, in <module>
+    from .neuman import NeumanDataset
+  File "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/hugs/datasets/neuman.py", line 17, in <module>
+    from .neuman_utils import neuman_helper
+  File "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/hugs/datasets/neuman_utils/neuman_helper.py", line 14, in <module>
+    from . import colmap_helper
+  File "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/hugs/datasets/neuman_utils/colmap_helper.py", line 15, in <module>
+    from .cameras import captures as captures_module
+  File "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/hugs/datasets/neuman_utils/cameras/captures.py", line 15, in <module>
+    from ..utils import ray_utils
+  File "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/hugs/datasets/neuman_utils/utils/ray_utils.py", line 7, in <module>
+    import igl
+ModuleNotFoundError: No module named 'igl'

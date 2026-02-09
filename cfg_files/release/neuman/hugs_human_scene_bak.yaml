@@ -38,7 +38,7 @@ human:
   init_scale_multiplier: 0.5
   run_init: false
   estimate_delta: true
-  triplane_res: 256 #256
+  triplane_res: 256
   optim_pose: true
   optim_betas: false
   optim_trans: true
@@ -77,8 +77,8 @@ human:
     lpips_w: 1.0
     lbs_w: 1000.0
     humansep_w: 1.0
-    num_patches: 2 #4
-    patch_size: 64 #128
+    num_patches: 4
+    patch_size: 128
     use_patches: 1
   densification_interval: 600
   opacity_reset_interval: 3000
@@ -87,14 +87,14 @@ human:
   densify_grad_threshold: 0.0002
   prune_min_opacity: 0.005
   densify_extent: 1.0
-  max_n_gaussians: 262144 #524288
+  max_n_gaussians: 524288
   percent_dense: 0.01
 scene:
   name: scene_gs
   ckpt: null
   sh_degree: 3
   add_bg_points: false
-  num_bg_points: 102400 #204800
+  num_bg_points: 204800
   bg_sphere_dist: 5.0
   clean_pcd: false
   opt_start_iter: -1
@@ -116,7 +116,7 @@ scene:
   densify_until_iter: 15000
   densify_grad_threshold: 0.0002
   prune_min_opacity: 0.005
-  max_n_gaussians: 1048576 #2097152
+  max_n_gaussians: 2097152
   loss:
     ssim_w: 0.2
     l1_w: 0.8

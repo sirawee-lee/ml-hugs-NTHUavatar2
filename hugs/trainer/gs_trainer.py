@@ -35,6 +35,8 @@ from hugs.utils.general import RandomIndexIterator, load_human_ckpt, save_images
 
 
 def get_train_dataset(cfg):
+    dataset = None # to be deleted
+
     if cfg.dataset.name == 'neuman':
         logger.info(f'Loading NeuMan dataset {cfg.dataset.seq}-train')
         dataset = NeumanDataset(
@@ -50,6 +52,8 @@ def get_train_dataset(cfg):
 
 
 def get_val_dataset(cfg):
+    dataset = None # to be deleted
+
     if cfg.dataset.name == 'neuman':
         logger.info(f'Loading NeuMan dataset {cfg.dataset.seq}-val')
         dataset = NeumanDataset(cfg.dataset.seq, 'val', cfg.mode)
@@ -58,9 +62,11 @@ def get_val_dataset(cfg):
 
 
 def get_anim_dataset(cfg):
+    dataset = None # to be deleted
+
     if cfg.dataset.name == 'neuman':
         logger.info(f'Loading NeuMan dataset {cfg.dataset.seq}-anim')
-        dataset = NeumanDataset(cfg.dataset.seq, 'anim', cfg.mode)
+        dataset = NeumanDataset(cfg, 'anim', cfg.mode)
     elif cfg.dataset.name == 'zju':
         dataset = None
         
@@ -209,7 +215,16 @@ class GaussianTrainer():
                 nframes=cfg.human.canon_nframes, device='cuda',
                 angle_limit=2*torch.pi,
             )
-            betas = self.human_gs.betas.detach() if hasattr(self.human_gs, 'betas') else self.train_dataset.betas[0]
+            # betas = self.human_gs.betas.detach() if hasattr(self.human_gs, 'betas') else self.train_dataset.betas[0]
+            
+            # added 9 feb
+            if hasattr(self.human_gs, 'betas'):
+                betas = self.human_gs.betas.detach()
+            elif hasattr(self, 'train_dataset') and self.train_dataset is not None:
+                betas = self.train_dataset.betas[0]
+            else:
+                betas = None
+            
             self.static_smpl_params = get_smpl_static_params(
                 betas=betas,
                 pose_type=self.cfg.human.canon_pose_type
@@ -697,9 +712,9 @@ class GaussianTrainer():
             canon_forward_out = self.human_gs.canon_forward()
         
         pbar = tqdm(range(nframes), desc="Canonical:")
-        if bg_color is 'white':
+        if bg_color == 'white':
             bg_color = torch.tensor([1, 1, 1], dtype=torch.float32, device="cuda")
-        elif bg_color is 'black':
+        elif bg_color == 'black':
             bg_color = torch.tensor([0, 0, 0], dtype=torch.float32, device="cuda")
             
             

@@ -75,7 +75,9 @@ def mocap_path(scene_name):
         return './data/SFU/0005/0005_2FeetJump001_poses.npz', 0, 1200, 4
         # return './data/SFU/0008/0008_Yoga001_poses.npz', 300, 1900, 8
     elif os.path.basename(scene_name) == 'bike': # and opt.motion_name == 'jumpandroll':
-        return './data/MPI_mosh/50002/misc_poses.npz', 0, 250, 1
+        # Use jumping motion instead of default misc_poses
+        return './data/SFU/0005/0005_2FeetJump001_poses.npz', 0, 400, 2
+        # return './data/MPI_mosh/50002/misc_poses.npz', 0, 250, 1
         # return './data/SFU/0018/0018_Moonwalk001_poses.npz', 0, 600, 4
         # return './data/SFU/0012/0012_JumpAndRoll001_poses.npz', 100, 400, 3
     elif os.path.basename(scene_name) == 'jogging': # and opt.motion_name == 'cartwheel':
@@ -182,13 +184,19 @@ def rendering_caps(scene_name, nframes, scene):
 
 class NeumanDataset(torch.utils.data.Dataset):
     def __init__(
-        self, seq, split, 
+        self, seq_or_cfg, split, 
         render_mode='human_scene',
         add_bg_points=False, 
         num_bg_points=204_800,
         bg_sphere_dist=5.0,
         clean_pcd=False,
     ):
+        if isinstance(seq_or_cfg, str):
+            seq = seq_or_cfg
+            cfg = None
+        else:
+            cfg = seq_or_cfg
+            seq = cfg.dataset.seq if isinstance(cfg.dataset.seq, str) else cfg.dataset.seq[0]
         dataset_path = f"{NEUMAN_PATH}/{seq}"
         scene = neuman_helper.NeuManReader.read_scene(
             dataset_path,
@@ -202,17 +210,27 @@ class NeumanDataset(torch.utils.data.Dataset):
         smpl_params = {f: smpl_params[f] for f in smpl_params.files}
         
         if split == 'anim':
-            motion_path, start_idx, end_idx, skip = mocap_path(seq)
-            motions = np.load(motion_path)
-            poses = motions['poses'][start_idx:end_idx:skip, AMASS_SMPLH_TO_SMPL_JOINTS]
-            transl = motions['trans'][start_idx:end_idx:skip]
-            betas = smpl_params['betas'][0]
+            if cfg and hasattr(cfg, 'custom_motion_path') and cfg.custom_motion_path:
+                # Load custom SMPL params
+                custom_data = np.load(cfg.custom_motion_path)
+                poses = np.concatenate([custom_data['global_orient'], custom_data['body_pose']], axis=1)
+                transl = custom_data['transl']
+                betas = custom_data['betas']
+                nframes = poses.shape[0]
+            else:
+                motion_path, start_idx, end_idx, skip = mocap_path(seq)
+                motions = np.load(motion_path)
+                poses = motions['poses'][start_idx:end_idx:skip, AMASS_SMPLH_TO_SMPL_JOINTS]
+                transl = motions['trans'][start_idx:end_idx:skip]
+                betas = smpl_params['betas'][0]
+                nframes = poses.shape[0]
+            
             smpl_params = {
                 'global_orient': poses[:, :3],
                 'body_pose': poses[:, 3:],
                 'transl': transl,
-                'scale': np.array([1.0] * poses.shape[0]),
-                'betas': betas[None].repeat(poses.shape[0], 0)[:, :10],
+                'scale': np.array([1.0] * nframes),
+                'betas': np.tile(betas, (nframes, 1))[:, :10],
             }
             
             manual_trans, manual_rot, manual_scale = alignment(seq)
