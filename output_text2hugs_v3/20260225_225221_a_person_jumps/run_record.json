@@ -1,0 +1,59 @@
+{
+  "pipeline_version": "1.0",
+  "start_time": "2026-02-25T22:52:21.538574",
+  "end_time": "2026-02-25T22:54:57.992875",
+  "duration_seconds": 156.454301,
+  "prompt": "a person jumps",
+  "scene": "bike",
+  "seed": 10,
+  "steps": 50,
+  "paths": {
+    "run_dir": "output_text2hugs_v3/20260225_225221_a_person_jumps",
+    "mdm_out": "output_text2hugs_v3/20260225_225221_a_person_jumps/mdm_out",
+    "original_npz": "output_text2hugs_v3/20260225_225221_a_person_jumps/smpl_npz/hugs_smpl_original.npz",
+    "rotated_npz": "output_text2hugs_v3/20260225_225221_a_person_jumps/rotated_npz/hugs_smpl_upright.npz",
+    "final_mp4": "output_text2hugs_v3/20260225_225221_a_person_jumps/final/result.mp4"
+  },
+  "rotation": {
+    "rx_degrees": 90,
+    "rz_degrees": 180
+  },
+  "translation": {
+    "center": true,
+    "tz_offset": 1.0
+  },
+  "repositories": {
+    "mdm": "/home/sigma/skibidi/motion-diffusion-model",
+    "hugs": "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar"
+  },
+  "python_executables": {
+    "mdm": "/home/sigma/anaconda3/envs/mdm/bin/python",
+    "hugs": "/home/sigma/anaconda3/envs/hugs/bin/python"
+  },
+  "executed_commands": [
+    {
+      "stage": "mdm",
+      "cmd": "/home/sigma/anaconda3/envs/mdm/bin/python -m sample.generate --model_path /home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/model000750000.pt --text_prompt a person jumps --num_samples 1 --num_repetitions 1 --guidance_param 2.5 --seed 10",
+      "cwd": "/home/sigma/skibidi/motion-diffusion-model"
+    },
+    {
+      "stage": "extract_smpl",
+      "cmd": "/home/sigma/anaconda3/envs/mdm/bin/python /home/sigma/skibidi/motion-diffusion-model/sample/extract_smpl_params.py --motion_data /home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/samples_humanml_enc_512_50steps_000750000_seed10_a_person_jumps/results.npy --output /home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/output_text2hugs_v3/20260225_225221_a_person_jumps/smpl_npz/hugs_smpl_original.npz",
+      "cwd": "/home/sigma/skibidi/motion-diffusion-model"
+    },
+    {
+      "stage": "rotate",
+      "cmd": "/home/sigma/anaconda3/envs/hugs/bin/python /home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/scripts/rotate_hugs_motion_v2.py --input output_text2hugs_v3/20260225_225221_a_person_jumps/smpl_npz/hugs_smpl_original.npz --output output_text2hugs_v3/20260225_225221_a_person_jumps/rotated_npz/hugs_smpl_upright.npz --rx 90 --rz 180 --center --tz 1.0",
+      "cwd": "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar"
+    },
+    {
+      "stage": "hugs",
+      "cmd": "/home/sigma/anaconda3/envs/hugs/bin/python main.py --cfg_file /home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/cfg_files/release/neuman/hugs_human_scene.yaml dataset.seq=bike eval=true human.ckpt=output/pretrained_models/bike/human_final.pth scene.ckpt=output/pretrained_models/bike/scene_final.pth custom_motion_path=output_text2hugs_v3/20260225_225221_a_person_jumps/rotated_npz/hugs_smpl_upright.npz",
+      "cwd": "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar"
+    }
+  ],
+  "scene_checkpoints": {
+    "human_ckpt": "output/pretrained_models/bike/human_final.pth",
+    "scene_ckpt": "output/pretrained_models/bike/scene_final.pth"
+  }
+}

@@ -1,0 +1,17 @@
+Loading dataset...
+Reading ././dataset/humanml_opt.txt
+Loading dataset t2m ...
+  0%|          | 0/4384 [00:00<?, ?it/s] 27%|██▋       | 1181/4384 [00:00<00:00, 11805.82it/s] 83%|████████▎ | 3653/4384 [00:00<00:00, 19398.88it/s]100%|██████████| 4384/4384 [00:00<00:00, 19155.07it/s]
+Creating model and diffusion...
+TRANS_ENC init
+EMBED TEXT
+Loading CLIP...
+Loading checkpoints from [/home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/model000750000.pt]...
+checkpoint has no avg model, loading as usual.
+### Sampling [repetitions #0]
+  0%|          | 0/50 [00:00<?, ?it/s] 16%|█▌        | 8/50 [00:00<00:00, 77.56it/s] 32%|███▏      | 16/50 [00:00<00:00, 70.39it/s] 48%|████▊     | 24/50 [00:00<00:00, 67.36it/s] 64%|██████▍   | 32/50 [00:00<00:00, 71.25it/s] 80%|████████  | 40/50 [00:00<00:00, 73.77it/s] 96%|█████████▌| 48/50 [00:00<00:00, 75.25it/s]100%|██████████| 50/50 [00:00<00:00, 73.46it/s]
+created 1 samples
+saving results file to [/home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/samples_humanml_enc_512_50steps_000750000_seed10_a_person_jumps/results.npy]
+saving visualizations to [/home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/samples_humanml_enc_512_50steps_000750000_seed10_a_person_jumps]...
+saving samples_humanml_enc_512_50steps_000750000_seed10_a_person_jumps/samples_00_to_00.mp4
+[Done] Results are at [/home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/samples_humanml_enc_512_50steps_000750000_seed10_a_person_jumps]

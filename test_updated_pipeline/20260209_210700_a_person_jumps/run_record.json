@@ -1,0 +1,54 @@
+{
+  "pipeline_version": "1.0",
+  "start_time": "2026-02-09T21:07:00.953910",
+  "end_time": "2026-02-09T21:07:00.954074",
+  "duration_seconds": 0.000164,
+  "prompt": "a person jumps",
+  "scene": "bike",
+  "seed": 10,
+  "steps": 50,
+  "paths": {
+    "run_dir": "test_updated_pipeline/20260209_210700_a_person_jumps",
+    "mdm_out": "test_updated_pipeline/20260209_210700_a_person_jumps/mdm_out",
+    "original_npz": "test_updated_pipeline/20260209_210700_a_person_jumps/smpl_npz/hugs_smpl_original.npz",
+    "rotated_npz": "test_updated_pipeline/20260209_210700_a_person_jumps/rotated_npz/hugs_smpl_upright_z180.npz",
+    "final_mp4": "test_updated_pipeline/20260209_210700_a_person_jumps/final/result.mp4"
+  },
+  "rotation": {
+    "rx_degrees": 90,
+    "rz_degrees": 180
+  },
+  "translation": {
+    "center": true,
+    "tz_offset": 1.0
+  },
+  "repositories": {
+    "mdm": "/home/sigma/skibidi/motion-diffusion-model",
+    "hugs": "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar"
+  },
+  "python_executables": {
+    "mdm": "/home/sigma/anaconda3/envs/mdm/bin/python",
+    "hugs": "/home/sigma/anaconda3/envs/hugs/bin/python"
+  },
+  "executed_commands": [
+    {
+      "stage": "mdm",
+      "cmd": "/home/sigma/anaconda3/envs/mdm/bin/python -m sample.generate --model_path /home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/model000750000.pt --text_prompt a person jumps --num_samples 1 --num_repetitions 1 --guidance_param 2.5 --seed 10",
+      "cwd": "/home/sigma/skibidi/motion-diffusion-model"
+    },
+    {
+      "stage": "rotate",
+      "cmd": "/home/sigma/anaconda3/envs/hugs/bin/python /home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/scripts/rotate_hugs_motion_v2.py --input test_updated_pipeline/20260209_210700_a_person_jumps/smpl_npz/hugs_smpl_original.npz --output test_updated_pipeline/20260209_210700_a_person_jumps/rotated_npz/hugs_smpl_upright_z180.npz --rx 90 --rz 180 --center --tz 1.0",
+      "cwd": "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar"
+    },
+    {
+      "stage": "hugs",
+      "cmd": "/home/sigma/anaconda3/envs/hugs/bin/python main.py --cfg_file /home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/cfg_files/release/neuman/hugs_human_scene.yaml dataset.seq=bike eval=true human.ckpt=output/pretrained_models/bike/human_final.pth scene.ckpt=output/pretrained_models/bike/scene_final.pth custom_motion_path=test_updated_pipeline/20260209_210700_a_person_jumps/rotated_npz/hugs_smpl_upright_z180.npz",
+      "cwd": "/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar"
+    }
+  ],
+  "scene_checkpoints": {
+    "human_ckpt": "output/pretrained_models/bike/human_final.pth",
+    "scene_ckpt": "output/pretrained_models/bike/scene_final.pth"
+  }
+}

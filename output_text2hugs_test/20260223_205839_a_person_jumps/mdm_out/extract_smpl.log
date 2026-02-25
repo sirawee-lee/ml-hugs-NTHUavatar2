@@ -1,0 +1,11 @@
+Loading motion data from: /home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/samples_humanml_enc_512_50steps_000750000_seed10_a_person_jumps/results.npy
+Traceback (most recent call last):
+  File "/home/sigma/skibidi/motion-diffusion-model/sample/extract_smpl_params.py", line 131, in <module>
+    main()
+  File "/home/sigma/skibidi/motion-diffusion-model/sample/extract_smpl_params.py", line 114, in main
+    motion_data = np.load(args.motion_data)
+  File "/home/sigma/anaconda3/envs/mdm/lib/python3.7/site-packages/numpy/lib/npyio.py", line 441, in load
+    pickle_kwargs=pickle_kwargs)
+  File "/home/sigma/anaconda3/envs/mdm/lib/python3.7/site-packages/numpy/lib/format.py", line 743, in read_array
+    raise ValueError("Object arrays cannot be loaded when "
+ValueError: Object arrays cannot be loaded when allow_pickle=False

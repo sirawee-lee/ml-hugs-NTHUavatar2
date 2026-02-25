@@ -1,0 +1,15 @@
+Loading MDM results from: /home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/samples_humanml_enc_512_50steps_000750000_seed10_a_person_jumps/results.npy
+Motion shape: (1, 22, 3, 120)  |  valid frames: 120
+Using first sample: (120, 22, 3)
+
+Fitting SMPL parameters (120 frames) via SMPLify-3D...
+./body_models/
+WARNING: You are using a SMPL model, with only 10 shape coefficients.
+
+SMPL parameters extracted:
+  global_orient : (120, 3)
+  body_pose     : (120, 69)
+  transl        : (120, 3)
+  betas         : (10,)
+
+✓ Saved hugs_smpl_original.npz to: output_text2hugs_v3/20260225_224916_a_person_jumps/smpl_npz/hugs_smpl_original.npz
