@@ -264,6 +264,12 @@ Examples:
         default=1.0,
         help="Forward offset (Z-axis) after centering (default: 1.0)",
     )
+    parser.add_argument(
+        "--ground",
+        type=float,
+        default=0.1,
+        help="Snap lowest Z frame to this value to fix floating avatar (default: 0.1, set to None to disable)",
+    )
     
     # Execution control
     parser.add_argument(
@@ -450,6 +456,9 @@ Examples:
     
     rotate_cmd.extend(["--tz", str(args.tz)])
     
+    if args.ground is not None:
+        rotate_cmd.extend(["--ground", str(args.ground)])
+    
     rotate_log = rotated_npz_dir / "rotate.log"
     if not run_command(
         rotate_cmd,
@@ -557,6 +566,7 @@ Examples:
         "translation": {
             "center": args.center,
             "tz_offset": args.tz,
+            "ground": args.ground,
         },
         "repositories": {
             "mdm": str(args.mdm_repo),

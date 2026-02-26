@@ -89,6 +89,8 @@ def main():
     parser.add_argument("--tx", type=float, default=0.0, help="Translate X offset")
     parser.add_argument("--ty", type=float, default=0.0, help="Translate Y offset")
     parser.add_argument("--tz", type=float, default=0.0, help="Translate Z offset")
+    parser.add_argument("--ground", type=float, default=None,
+                        help="Snap lowest Z frame to this value (e.g. 0.1) to fix floating avatar")
     args = parser.parse_args()
 
     data = np.load(args.input)
@@ -115,6 +117,10 @@ def main():
     if args.center:
         transl_new = transl_new - transl_new.mean(axis=0, keepdims=True)
     transl_new = transl_new + np.array([args.tx, args.ty, args.tz], dtype=np.float32)
+    if args.ground is not None:
+        # Shift so the minimum Z of the trajectory sits at --ground value
+        transl_new[:, 2] = transl_new[:, 2] - transl_new[:, 2].min() + args.ground
+        print(f"Ground snap: Z shifted to min={args.ground:.4f}")
 
     out = {
         "global_orient": global_orient_new.astype(np.float32),

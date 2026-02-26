@@ -1,0 +1,217 @@
+Experiment hyperparams:
+    dataset.seq, vals=['bike']
+0it [00:00, ?it/s]1it [00:00, 13025.79it/s]
+2026-02-25 23:12:22.875 | INFO     | __main__:<module>:95 - Running 1 experiments
+2026-02-25 23:12:22.875 | INFO     | __main__:<module>:105 - Running experiment 0 -- demo-dataset.seq=bike
+2026-02-25 23:12:22.893 | INFO     | __main__:get_logger:53 - Logging to output/human_scene/neuman/bike/hugs_trimlp/demo-dataset.seq=bike/2026-02-25_23-12-22
+2026-02-25 23:12:22.899 | INFO     | __main__:get_logger:54 - seed: 0
+mode: human_scene
+output_path: output
+cfg_file: /home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/cfg_files/release/neuman/hugs_human_scene.yaml
+exp_name: demo-dataset.seq=bike
+dataset_path: ''
+detect_anomaly: false
+debug: false
+wandb: false
+logdir: output/human_scene/neuman/bike/hugs_trimlp/demo-dataset.seq=bike/2026-02-25_23-12-22
+logdir_ckpt: output/human_scene/neuman/bike/hugs_trimlp/demo-dataset.seq=bike/2026-02-25_23-12-22/ckpt
+eval: true
+bg_color: white
+dataset:
+  name: neuman
+  seq: bike
+train:
+  batch_size: 1
+  num_workers: 0
+  num_steps: 14998
+  save_ckpt_interval: 15000
+  val_interval: 1000
+  anim_interval: 15000
+  optim_scene: true
+  save_progress_images: false
+  progress_save_interval: 10
+human:
+  name: hugs_trimlp
+  ckpt: output/pretrained_models/bike/human_final.pth
+  sh_degree: 0
+  n_subdivision: 2
+  only_rgb: false
+  use_surface: false
+  use_deformer: true
+  init_2d: false
+  disable_posedirs: true
+  res_offset: false
+  rotate_sh: false
+  isotropic: false
+  init_scale_multiplier: 0.5
+  run_init: false
+  estimate_delta: true
+  triplane_res: 256
+  optim_pose: true
+  optim_betas: false
+  optim_trans: true
+  optim_eps_offsets: false
+  activation: relu
+  canon_nframes: 60
+  canon_pose_type: da_pose
+  knn_n_hops: 3
+  lr:
+    wd: 0.0
+    position: 0.00016
+    position_init: 0.00016
+    position_final: 1.6e-06
+    position_delay_mult: 0.01
+    position_max_steps: 30000
+    opacity: 0.05
+    scaling: 0.005
+    rotation: 0.001
+    feature: 0.0025
+    smpl_spatial: 2.0
+    smpl_pose: 0.0001
+    smpl_betas: 0.0001
+    smpl_trans: 0.0001
+    smpl_eps_offset: 0.0001
+    lbs_weights: 0.0
+    posedirs: 0.0
+    percent_dense: 0.01
+    appearance: 0.001
+    geometry: 0.001
+    vembed: 0.001
+    deformation: 0.0001
+    scale_lr_w_npoints: false
+  loss:
+    ssim_w: 0.2
+    l1_w: 0.8
+    lpips_w: 1.0
+    lbs_w: 1000.0
+    humansep_w: 1.0
+    num_patches: 2
+    patch_size: 64
+    use_patches: 1
+  densification_interval: 600
+  opacity_reset_interval: 3000
+  densify_from_iter: 3000
+  densify_until_iter: 15000
+  densify_grad_threshold: 0.0002
+  prune_min_opacity: 0.005
+  densify_extent: 1.0
+  max_n_gaussians: 262144
+  percent_dense: 0.01
+scene:
+  name: scene_gs
+  ckpt: output/pretrained_models/bike/scene_final.pth
+  sh_degree: 3
+  add_bg_points: false
+  num_bg_points: 102400
+  bg_sphere_dist: 5.0
+  clean_pcd: false
+  opt_start_iter: -1
+  lr:
+    percent_dense: 0.01
+    spatial_scale: 1.0
+    position_init: 0.00016
+    position_final: 1.6e-06
+    position_delay_mult: 0.01
+    position_max_steps: 30000
+    opacity: 0.05
+    scaling: 0.005
+    rotation: 0.001
+    feature: 0.0025
+  percent_dense: 0.01
+  densification_interval: 100
+  opacity_reset_interval: 20000
+  densify_from_iter: 500
+  densify_until_iter: 15000
+  densify_grad_threshold: 0.0002
+  prune_min_opacity: 0.005
+  max_n_gaussians: 1048576
+  loss:
+    ssim_w: 0.2
+    l1_w: 0.8
+custom_motion_path: output_text2hugs_v4/20260225_231125_a_person_walks_forward_from_rg/rotated_npz/hugs_smpl_upright.npz
+
+2026-02-25 23:12:22.905 | INFO     | hugs.trainer.gs_trainer:get_val_dataset:58 - Loading NeuMan dataset bike-val
+reading cameras:   0%|          | 0/1 [00:00<?, ?it/s]reading cameras: 100%|██████████| 1/1 [00:00<00:00, 32017.59it/s]
+reading images meta:   0%|          | 0/104 [00:00<?, ?it/s]reading images meta: 100%|██████████| 104/104 [00:00<00:00, 7065.58it/s]
+reading point cloud:   0%|          | 0/33742 [00:00<?, ?it/s]reading point cloud:  72%|███████▏  | 24153/33742 [00:00<00:00, 241518.14it/s]reading point cloud: 100%|██████████| 33742/33742 [00:00<00:00, 241903.11it/s]
+Computing near/far for ['bkg']:   0%|          | 0/104 [00:00<?, ?it/s]Computing near/far for ['bkg']:  33%|███▎      | 34/104 [00:00<00:00, 336.54it/s]Computing near/far for ['bkg']:  65%|██████▌   | 68/104 [00:00<00:00, 322.53it/s]Computing near/far for ['bkg']:  97%|█████████▋| 101/104 [00:00<00:00, 306.50it/s]Computing near/far for ['bkg']: 100%|██████████| 104/104 [00:00<00:00, 308.57it/s]
+  0%|          | 0/10 [00:00<?, ?it/s] 20%|██        | 2/10 [00:00<00:00, 17.77it/s] 40%|████      | 4/10 [00:00<00:00, 18.55it/s] 60%|██████    | 6/10 [00:00<00:00, 18.76it/s] 80%|████████  | 8/10 [00:00<00:00, 18.96it/s]100%|██████████| 10/10 [00:00<00:00, 19.05it/s]100%|██████████| 10/10 [00:00<00:00, 18.86it/s]
+2026-02-25 23:12:24.044 | INFO     | hugs.trainer.gs_trainer:get_anim_dataset:68 - Loading NeuMan dataset bike-anim
+reading cameras:   0%|          | 0/1 [00:00<?, ?it/s]reading cameras: 100%|██████████| 1/1 [00:00<00:00, 33026.02it/s]
+reading images meta:   0%|          | 0/104 [00:00<?, ?it/s]reading images meta: 100%|██████████| 104/104 [00:00<00:00, 7266.61it/s]
+reading point cloud:   0%|          | 0/33742 [00:00<?, ?it/s]reading point cloud:  74%|███████▍  | 25037/33742 [00:00<00:00, 250355.32it/s]reading point cloud: 100%|██████████| 33742/33742 [00:00<00:00, 250200.58it/s]
+Computing near/far for ['bkg']:   0%|          | 0/104 [00:00<?, ?it/s]Computing near/far for ['bkg']:  28%|██▊       | 29/104 [00:00<00:00, 287.23it/s]Computing near/far for ['bkg']:  56%|█████▌    | 58/104 [00:00<00:00, 269.04it/s]Computing near/far for ['bkg']:  82%|████████▏ | 85/104 [00:00<00:00, 260.75it/s]Computing near/far for ['bkg']: 100%|██████████| 104/104 [00:00<00:00, 265.31it/s]
+  0%|          | 0/120 [00:00<?, ?it/s]100%|██████████| 120/120 [00:00<00:00, 1698.71it/s]
+/home/sigma/anaconda3/envs/hugs/lib/python3.8/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/home/sigma/anaconda3/envs/hugs/lib/python3.8/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+2026-02-25 23:12:25.342 | INFO     | hugs.models.hugs_trimlp:create_betas:139 - Created betas with shape: torch.Size([10]), requires_grad: False
+2026-02-25 23:12:25.378 | INFO     | hugs.models.hugs_trimlp:__init__:109 - Subdividing SMPL model 2 times
+/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar/hugs/models/hugs_trimlp.py:120: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /opt/conda/conda-bld/pytorch_1670525541702/work/torch/csrc/utils/tensor_numpy.cpp:199.)
+  self.edges = torch.from_numpy(edges).to(self.device).long()
+2026-02-25 23:12:34.837 | INFO     | hugs.models.hugs_trimlp:create_betas:139 - Created betas with shape: torch.Size([10]), requires_grad: False
+2026-02-25 23:12:34.837 | INFO     | hugs.models.hugs_trimlp:setup_optimizer:699 - Parameter: xyz, lr: 0.00032
+2026-02-25 23:12:34.837 | INFO     | hugs.models.hugs_trimlp:setup_optimizer:699 - Parameter: v_embed, lr: 0.001
+2026-02-25 23:12:34.837 | INFO     | hugs.models.hugs_trimlp:setup_optimizer:699 - Parameter: geometry_dec, lr: 0.001
+2026-02-25 23:12:34.838 | INFO     | hugs.models.hugs_trimlp:setup_optimizer:699 - Parameter: appearance_dec, lr: 0.001
+2026-02-25 23:12:34.838 | INFO     | hugs.models.hugs_trimlp:setup_optimizer:699 - Parameter: deform_dec, lr: 0.0001
+2026-02-25 23:12:34.838 | INFO     | hugs.trainer.gs_trainer:__init__:134 - HUGS TRIMLP: 
+xyz: torch.Size([0]) 
+max_radii2D: torch.Size([0]) 
+xyz_gradient_accum: torch.Size([0, 1]) 
+denom: torch.Size([0, 1]) 
+
+2026-02-25 23:12:34.888 | INFO     | hugs.models.hugs_trimlp:setup_optimizer:699 - Parameter: xyz, lr: 0.00032
+2026-02-25 23:12:34.888 | INFO     | hugs.models.hugs_trimlp:setup_optimizer:699 - Parameter: v_embed, lr: 0.001
+2026-02-25 23:12:34.888 | INFO     | hugs.models.hugs_trimlp:setup_optimizer:699 - Parameter: geometry_dec, lr: 0.001
+2026-02-25 23:12:34.888 | INFO     | hugs.models.hugs_trimlp:setup_optimizer:699 - Parameter: appearance_dec, lr: 0.001
+2026-02-25 23:12:34.889 | INFO     | hugs.models.hugs_trimlp:setup_optimizer:699 - Parameter: deform_dec, lr: 0.0001
+2026-02-25 23:12:34.893 | WARNING  | hugs.models.hugs_trimlp:load_state_dict:194 - Optimizer load failed: loaded state dict has a different number of parameter groups
+2026-02-25 23:12:34.893 | WARNING  | hugs.models.hugs_trimlp:load_state_dict:195 - Continue without a pretrained optimizer
+2026-02-25 23:12:34.893 | INFO     | hugs.trainer.gs_trainer:__init__:138 - Loaded human model from output/pretrained_models/bike/human_final.pth
+2026-02-25 23:12:34.893 | INFO     | hugs.trainer.gs_trainer:__init__:163 - SceneGS: 
+xyz: torch.Size([0]) 
+features_dc: torch.Size([0]) 
+features_rest: torch.Size([0]) 
+scaling: torch.Size([0]) 
+rotation: torch.Size([0]) 
+opacity: torch.Size([0]) 
+max_radii2D: torch.Size([0]) 
+xyz_gradient_accum: torch.Size([0]) 
+denom: torch.Size([0]) 
+
+2026-02-25 23:12:35.913 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: xyz, lr: 0.0009591537246704103
+2026-02-25 23:12:35.913 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: f_dc, lr: 0.0025
+2026-02-25 23:12:35.914 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: f_rest, lr: 0.000125
+2026-02-25 23:12:35.914 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: opacity, lr: 0.05
+2026-02-25 23:12:35.914 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: scaling, lr: 0.005
+2026-02-25 23:12:35.914 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: rotation, lr: 0.001
+2026-02-25 23:12:35.916 | INFO     | hugs.trainer.gs_trainer:__init__:167 - Loaded scene model from output/pretrained_models/bike/scene_final.pth
+2026-02-25 23:12:35.917 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: xyz, lr: 0.0009591537246704103
+2026-02-25 23:12:35.917 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: f_dc, lr: 0.0025
+2026-02-25 23:12:35.917 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: f_rest, lr: 0.000125
+2026-02-25 23:12:35.917 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: opacity, lr: 0.05
+2026-02-25 23:12:35.917 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: scaling, lr: 0.005
+2026-02-25 23:12:35.917 | INFO     | hugs.models.scene:setup_optimizer:211 - Parameter: rotation, lr: 0.001
+/home/sigma/anaconda3/envs/hugs/lib/python3.8/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=VGG16_Weights.IMAGENET1K_V1`. You can also use `weights=VGG16_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /home/sigma/anaconda3/envs/hugs/lib/python3.8/site-packages/lpips/weights/v0.1/alex.pth
+# vertices before subdivision: (6890, 3)
+# vertices before subdivision: (27554, 3)
+Setting up [LPIPS] perceptual loss: trunk [vgg], v[0.1], spatial [off]
+Loading model from: /home/sigma/anaconda3/envs/hugs/lib/python3.8/site-packages/lpips/weights/v0.1/vgg.pth
+Validation:   0%|          | 0/10 [00:00<?, ?it/s]Validation:  10%|█         | 1/10 [00:01<00:13,  1.53s/it]Validation:  20%|██        | 2/10 [00:02<00:09,  1.13s/it]Validation:  30%|███       | 3/10 [00:03<00:07,  1.04s/it]Validation:  40%|████      | 4/10 [00:04<00:06,  1.04s/it]Validation:  50%|█████     | 5/10 [00:05<00:05,  1.01s/it]Validation:  60%|██████    | 6/10 [00:06<00:03,  1.00it/s]Validation:  70%|███████   | 7/10 [00:07<00:02,  1.02it/s]Validation:  80%|████████  | 8/10 [00:08<00:01,  1.04it/s]Validation:  90%|█████████ | 9/10 [00:09<00:00,  1.05it/s]Validation: 100%|██████████| 10/10 [00:10<00:00,  1.02it/s]Validation: 100%|██████████| 10/10 [00:10<00:00,  1.01s/it]
+2026-02-25 23:12:47.267 | INFO     | hugs.trainer.gs_trainer:validate:549 - final - HUGS_LPIPS: 0.0969
+2026-02-25 23:12:47.267 | INFO     | hugs.trainer.gs_trainer:validate:549 - final - HUGS_PSNR: 25.4566
+2026-02-25 23:12:47.268 | INFO     | hugs.trainer.gs_trainer:validate:549 - final - HUGS_SSIM: 0.8440
+2026-02-25 23:12:47.269 | INFO     | hugs.trainer.gs_trainer:validate:549 - final - HUGS_HUMAN_LPIPS: 0.1578
+2026-02-25 23:12:47.270 | INFO     | hugs.trainer.gs_trainer:validate:549 - final - HUGS_HUMAN_PSNR: 19.4768
+2026-02-25 23:12:47.271 | INFO     | hugs.trainer.gs_trainer:validate:549 - final - HUGS_HUMAN_SSIM: 0.6739
+Animation:   0%|          | 0/120 [00:00<?, ?it/s]Animation:   1%|          | 1/120 [00:00<00:55,  2.15it/s]Animation:   2%|▏         | 2/120 [00:00<00:56,  2.07it/s]Animation:   2%|▎         | 3/120 [00:01<00:56,  2.07it/s]Animation:   3%|▎         | 4/120 [00:01<00:54,  2.11it/s]Animation:   4%|▍         | 5/120 [00:02<00:53,  2.13it/s]Animation:   5%|▌         | 6/120 [00:02<00:54,  2.08it/s]Animation:   6%|▌         | 7/120 [00:03<00:53,  2.10it/s]Animation:   7%|▋         | 8/120 [00:03<00:53,  2.09it/s]Animation:   8%|▊         | 9/120 [00:04<00:53,  2.08it/s]Animation:   8%|▊         | 10/120 [00:04<00:52,  2.09it/s]Animation:   9%|▉         | 11/120 [00:05<00:51,  2.10it/s]Animation:  10%|█         | 12/120 [00:05<00:50,  2.13it/s]Animation:  11%|█         | 13/120 [00:06<00:50,  2.12it/s]Animation:  12%|█▏        | 14/120 [00:06<00:50,  2.10it/s]Animation:  12%|█▎        | 15/120 [00:07<00:49,  2.13it/s]Animation:  13%|█▎        | 16/120 [00:07<00:49,  2.12it/s]Animation:  14%|█▍        | 17/120 [00:08<00:48,  2.11it/s]Animation:  15%|█▌        | 18/120 [00:08<00:47,  2.13it/s]Animation:  16%|█▌        | 19/120 [00:08<00:47,  2.14it/s]Animation:  17%|█▋        | 20/120 [00:09<00:47,  2.11it/s]Animation:  18%|█▊        | 21/120 [00:09<00:47,  2.10it/s]Animation:  18%|█▊        | 22/120 [00:10<00:46,  2.09it/s]Animation:  19%|█▉        | 23/120 [00:10<00:46,  2.08it/s]Animation:  20%|██        | 24/120 [00:11<00:45,  2.11it/s]Animation:  21%|██        | 25/120 [00:11<00:44,  2.13it/s]Animation:  22%|██▏       | 26/120 [00:12<00:44,  2.13it/s]Animation:  22%|██▎       | 27/120 [00:12<00:43,  2.15it/s]Animation:  23%|██▎       | 28/120 [00:13<00:42,  2.14it/s]Animation:  24%|██▍       | 29/120 [00:13<00:42,  2.13it/s]Animation:  25%|██▌       | 30/120 [00:14<00:42,  2.12it/s]Animation:  26%|██▌       | 31/120 [00:14<00:41,  2.13it/s]Animation:  27%|██▋       | 32/120 [00:15<00:41,  2.12it/s]Animation:  28%|██▊       | 33/120 [00:15<00:41,  2.11it/s]Animation:  28%|██▊       | 34/120 [00:16<00:40,  2.11it/s]Animation:  29%|██▉       | 35/120 [00:16<00:40,  2.09it/s]Animation:  30%|███       | 36/120 [00:17<00:40,  2.09it/s]Animation:  31%|███       | 37/120 [00:17<00:39,  2.12it/s]Animation:  32%|███▏      | 38/120 [00:17<00:38,  2.12it/s]Animation:  32%|███▎      | 39/120 [00:18<00:38,  2.11it/s]Animation:  33%|███▎      | 40/120 [00:18<00:37,  2.11it/s]Animation:  34%|███▍      | 41/120 [00:19<00:37,  2.12it/s]Animation:  35%|███▌      | 42/120 [00:19<00:36,  2.11it/s]Animation:  36%|███▌      | 43/120 [00:20<00:36,  2.11it/s]Animation:  37%|███▋      | 44/120 [00:20<00:36,  2.11it/s]Animation:  38%|███▊      | 45/120 [00:21<00:35,  2.12it/s]Animation:  38%|███▊      | 46/120 [00:21<00:35,  2.11it/s]Animation:  39%|███▉      | 47/120 [00:22<00:34,  2.13it/s]Animation:  40%|████      | 48/120 [00:22<00:33,  2.13it/s]Animation:  41%|████      | 49/120 [00:23<00:33,  2.13it/s]Animation:  42%|████▏     | 50/120 [00:23<00:33,  2.12it/s]Animation:  42%|████▎     | 51/120 [00:24<00:32,  2.12it/s]Animation:  43%|████▎     | 52/120 [00:24<00:32,  2.12it/s]Animation:  44%|████▍     | 53/120 [00:25<00:31,  2.14it/s]Animation:  45%|████▌     | 54/120 [00:25<00:31,  2.13it/s]Animation:  46%|████▌     | 55/120 [00:26<00:31,  2.10it/s]Animation:  47%|████▋     | 56/120 [00:26<00:30,  2.11it/s]Animation:  48%|████▊     | 57/120 [00:26<00:29,  2.12it/s]Animation:  48%|████▊     | 58/120 [00:27<00:29,  2.10it/s]Animation:  49%|████▉     | 59/120 [00:27<00:29,  2.10it/s]Animation:  50%|█████     | 60/120 [00:28<00:28,  2.10it/s]Animation:  51%|█████     | 61/120 [00:28<00:28,  2.09it/s]Animation:  52%|█████▏    | 62/120 [00:29<00:27,  2.09it/s]Animation:  52%|█████▎    | 63/120 [00:29<00:26,  2.11it/s]Animation:  53%|█████▎    | 64/120 [00:30<00:26,  2.11it/s]Animation:  54%|█████▍    | 65/120 [00:30<00:26,  2.11it/s]Animation:  55%|█████▌    | 66/120 [00:31<00:25,  2.11it/s]Animation:  56%|█████▌    | 67/120 [00:31<00:25,  2.10it/s]Animation:  57%|█████▋    | 68/120 [00:32<00:24,  2.13it/s]Animation:  57%|█████▊    | 69/120 [00:32<00:24,  2.12it/s]Animation:  58%|█████▊    | 70/120 [00:33<00:23,  2.11it/s]Animation:  59%|█████▉    | 71/120 [00:33<00:23,  2.11it/s]Animation:  60%|██████    | 72/120 [00:34<00:22,  2.12it/s]Animation:  61%|██████    | 73/120 [00:34<00:22,  2.11it/s]Animation:  62%|██████▏   | 74/120 [00:35<00:21,  2.10it/s]Animation:  62%|██████▎   | 75/120 [00:35<00:21,  2.11it/s]Animation:  63%|██████▎   | 76/120 [00:35<00:20,  2.10it/s]Animation:  64%|██████▍   | 77/120 [00:36<00:20,  2.10it/s]Animation:  65%|██████▌   | 78/120 [00:36<00:19,  2.10it/s]Animation:  66%|██████▌   | 79/120 [00:37<00:19,  2.10it/s]Animation:  67%|██████▋   | 80/120 [00:37<00:18,  2.12it/s]Animation:  68%|██████▊   | 81/120 [00:38<00:18,  2.12it/s]Animation:  68%|██████▊   | 82/120 [00:38<00:17,  2.12it/s]Animation:  69%|██████▉   | 83/120 [00:39<00:17,  2.11it/s]Animation:  70%|███████   | 84/120 [00:39<00:16,  2.13it/s]Animation:  71%|███████   | 85/120 [00:40<00:16,  2.11it/s]Animation:  72%|███████▏  | 86/120 [00:40<00:16,  2.10it/s]Animation:  72%|███████▎  | 87/120 [00:41<00:15,  2.08it/s]Animation:  73%|███████▎  | 88/120 [00:41<00:15,  2.08it/s]Animation:  74%|███████▍  | 89/120 [00:42<00:15,  2.03it/s]Animation:  75%|███████▌  | 90/120 [00:42<00:14,  2.05it/s]Animation:  76%|███████▌  | 91/120 [00:43<00:14,  2.01it/s]Animation:  77%|███████▋  | 92/120 [00:43<00:13,  2.03it/s]Animation:  78%|███████▊  | 93/120 [00:44<00:13,  2.07it/s]Animation:  78%|███████▊  | 94/120 [00:44<00:12,  2.07it/s]Animation:  79%|███████▉  | 95/120 [00:45<00:12,  2.08it/s]Animation:  80%|████████  | 96/120 [00:45<00:11,  2.05it/s]Animation:  81%|████████  | 97/120 [00:46<00:11,  2.07it/s]Animation:  82%|████████▏ | 98/120 [00:46<00:10,  2.07it/s]Animation:  82%|████████▎ | 99/120 [00:47<00:10,  2.07it/s]Animation:  83%|████████▎ | 100/120 [00:47<00:09,  2.07it/s]Animation:  84%|████████▍ | 101/120 [00:48<00:09,  2.03it/s]Animation:  85%|████████▌ | 102/120 [00:48<00:08,  2.03it/s]Animation:  86%|████████▌ | 103/120 [00:49<00:08,  2.06it/s]Animation:  87%|████████▋ | 104/120 [00:49<00:07,  2.08it/s]Animation:  88%|████████▊ | 105/120 [00:50<00:07,  2.02it/s]Animation:  88%|████████▊ | 106/120 [00:50<00:06,  2.04it/s]Animation:  89%|████████▉ | 107/120 [00:50<00:06,  2.05it/s]Animation:  90%|█████████ | 108/120 [00:51<00:05,  2.07it/s]Animation:  91%|█████████ | 109/120 [00:51<00:05,  2.01it/s]Animation:  92%|█████████▏| 110/120 [00:52<00:04,  2.02it/s]Animation:  92%|█████████▎| 111/120 [00:52<00:04,  2.04it/s]Animation:  93%|█████████▎| 112/120 [00:53<00:03,  2.06it/s]Animation:  94%|█████████▍| 113/120 [00:53<00:03,  2.08it/s]Animation:  95%|█████████▌| 114/120 [00:54<00:02,  2.08it/s]Animation:  96%|█████████▌| 115/120 [00:54<00:02,  2.11it/s]Animation:  97%|█████████▋| 116/120 [00:55<00:01,  2.11it/s]Animation:  98%|█████████▊| 117/120 [00:55<00:01,  2.11it/s]Animation:  98%|█████████▊| 118/120 [00:56<00:00,  2.11it/s]Animation:  99%|█████████▉| 119/120 [00:56<00:00,  2.10it/s]Animation: 100%|██████████| 120/120 [00:57<00:00,  2.05it/s]Animation: 100%|██████████| 120/120 [00:57<00:00,  2.10it/s]
+2026-02-25 23:13:44.522 | INFO     | hugs.utils.general:create_video:91 - Video is saved under output/human_scene/neuman/bike/hugs_trimlp/demo-dataset.seq=bike/2026-02-25_23-12-22/anim_neuman_bike_final.mp4
+Canonical::   0%|          | 0/100 [00:00<?, ?it/s]Canonical::   1%|          | 1/100 [00:00<00:11,  8.88it/s]Canonical::   2%|▏         | 2/100 [00:00<00:10,  8.92it/s]Canonical::   3%|▎         | 3/100 [00:00<00:10,  9.12it/s]Canonical::   4%|▍         | 4/100 [00:00<00:10,  9.30it/s]Canonical::   5%|▌         | 5/100 [00:00<00:10,  9.33it/s]Canonical::   6%|▌         | 6/100 [00:00<00:10,  9.21it/s]Canonical::   7%|▋         | 7/100 [00:00<00:10,  9.30it/s]Canonical::   8%|▊         | 8/100 [00:00<00:09,  9.33it/s]Canonical::   9%|▉         | 9/100 [00:00<00:09,  9.33it/s]Canonical::  10%|█         | 10/100 [00:01<00:09,  9.20it/s]Canonical::  11%|█         | 11/100 [00:01<00:09,  9.18it/s]Canonical::  12%|█▏        | 12/100 [00:01<00:09,  9.14it/s]Canonical::  13%|█▎        | 13/100 [00:01<00:09,  9.23it/s]Canonical::  14%|█▍        | 14/100 [00:01<00:09,  9.15it/s]Canonical::  15%|█▌        | 15/100 [00:01<00:09,  9.29it/s]Canonical::  16%|█▌        | 16/100 [00:01<00:09,  9.25it/s]Canonical::  17%|█▋        | 17/100 [00:01<00:08,  9.33it/s]Canonical::  19%|█▉        | 19/100 [00:02<00:07, 10.37it/s]Canonical::  21%|██        | 21/100 [00:02<00:07, 11.14it/s]Canonical::  23%|██▎       | 23/100 [00:02<00:06, 11.63it/s]Canonical::  25%|██▌       | 25/100 [00:02<00:06, 11.94it/s]Canonical::  27%|██▋       | 27/100 [00:02<00:05, 12.18it/s]Canonical::  29%|██▉       | 29/100 [00:02<00:05, 12.35it/s]Canonical::  31%|███       | 31/100 [00:02<00:05, 12.41it/s]Canonical::  33%|███▎      | 33/100 [00:03<00:05, 12.38it/s]Canonical::  35%|███▌      | 35/100 [00:03<00:05, 12.40it/s]Canonical::  37%|███▋      | 37/100 [00:03<00:05, 12.05it/s]Canonical::  39%|███▉      | 39/100 [00:03<00:05, 11.91it/s]Canonical::  41%|████      | 41/100 [00:03<00:04, 12.05it/s]Canonical::  43%|████▎     | 43/100 [00:03<00:04, 12.16it/s]Canonical::  45%|████▌     | 45/100 [00:04<00:04, 11.94it/s]Canonical::  47%|████▋     | 47/100 [00:04<00:04, 12.00it/s]Canonical::  49%|████▉     | 49/100 [00:04<00:04, 12.01it/s]Canonical::  51%|█████     | 51/100 [00:04<00:04, 11.21it/s]Canonical::  53%|█████▎    | 53/100 [00:04<00:04, 11.35it/s]Canonical::  55%|█████▌    | 55/100 [00:05<00:03, 11.53it/s]Canonical::  57%|█████▋    | 57/100 [00:05<00:03, 11.68it/s]Canonical::  59%|█████▉    | 59/100 [00:05<00:03, 11.84it/s]Canonical::  61%|██████    | 61/100 [00:05<00:03, 11.96it/s]Canonical::  63%|██████▎   | 63/100 [00:05<00:03, 11.94it/s]Canonical::  65%|██████▌   | 65/100 [00:05<00:02, 12.04it/s]Canonical::  67%|██████▋   | 67/100 [00:05<00:02, 12.24it/s]Canonical::  69%|██████▉   | 69/100 [00:06<00:02, 12.36it/s]Canonical::  71%|███████   | 71/100 [00:06<00:02, 12.40it/s]Canonical::  73%|███████▎  | 73/100 [00:06<00:02, 12.50it/s]Canonical::  75%|███████▌  | 75/100 [00:06<00:01, 12.69it/s]Canonical::  77%|███████▋  | 77/100 [00:06<00:01, 12.76it/s]Canonical::  79%|███████▉  | 79/100 [00:06<00:01, 12.74it/s]Canonical::  81%|████████  | 81/100 [00:07<00:01, 12.63it/s]Canonical::  83%|████████▎ | 83/100 [00:07<00:01, 12.58it/s]Canonical::  85%|████████▌ | 85/100 [00:07<00:01, 12.55it/s]Canonical::  87%|████████▋ | 87/100 [00:07<00:01, 12.55it/s]Canonical::  89%|████████▉ | 89/100 [00:07<00:00, 12.57it/s]Canonical::  91%|█████████ | 91/100 [00:07<00:00, 12.52it/s]Canonical::  93%|█████████▎| 93/100 [00:08<00:00, 12.52it/s]Canonical::  95%|█████████▌| 95/100 [00:08<00:00, 12.46it/s]Canonical::  97%|█████████▋| 97/100 [00:08<00:00, 12.45it/s]Canonical::  99%|█████████▉| 99/100 [00:08<00:00, 12.40it/s]Canonical:: 100%|██████████| 100/100 [00:08<00:00, 11.61it/s]
+2026-02-25 23:13:54.468 | INFO     | hugs.utils.general:create_video:91 - Video is saved under output/human_scene/neuman/bike/hugs_trimlp/demo-dataset.seq=bike/2026-02-25_23-12-22/canon_neuman_bike_final_a_pose.mp4
+Canonical::   0%|          | 0/100 [00:00<?, ?it/s]Canonical::   2%|▏         | 2/100 [00:00<00:08, 12.15it/s]Canonical::   4%|▍         | 4/100 [00:00<00:07, 12.05it/s]Canonical::   6%|▌         | 6/100 [00:00<00:07, 12.10it/s]Canonical::   8%|▊         | 8/100 [00:00<00:07, 12.19it/s]Canonical::  10%|█         | 10/100 [00:00<00:07, 12.16it/s]Canonical::  12%|█▏        | 12/100 [00:00<00:07, 12.11it/s]Canonical::  14%|█▍        | 14/100 [00:01<00:07, 12.16it/s]Canonical::  16%|█▌        | 16/100 [00:01<00:06, 12.18it/s]Canonical::  18%|█▊        | 18/100 [00:01<00:06, 12.20it/s]Canonical::  20%|██        | 20/100 [00:01<00:06, 11.86it/s]Canonical::  22%|██▏       | 22/100 [00:01<00:06, 11.56it/s]Canonical::  24%|██▍       | 24/100 [00:02<00:06, 11.83it/s]Canonical::  26%|██▌       | 26/100 [00:02<00:06, 11.94it/s]Canonical::  28%|██▊       | 28/100 [00:02<00:05, 12.12it/s]Canonical::  30%|███       | 30/100 [00:02<00:05, 12.29it/s]Canonical::  32%|███▏      | 32/100 [00:02<00:05, 12.36it/s]Canonical::  34%|███▍      | 34/100 [00:02<00:05, 12.28it/s]Canonical::  36%|███▌      | 36/100 [00:02<00:05, 12.29it/s]Canonical::  38%|███▊      | 38/100 [00:03<00:05, 12.33it/s]Canonical::  40%|████      | 40/100 [00:03<00:05, 11.91it/s]Canonical::  42%|████▏     | 42/100 [00:03<00:05, 11.48it/s]Canonical::  44%|████▍     | 44/100 [00:03<00:04, 11.60it/s]Canonical::  46%|████▌     | 46/100 [00:03<00:04, 11.44it/s]Canonical::  48%|████▊     | 48/100 [00:04<00:04, 11.56it/s]Canonical::  50%|█████     | 50/100 [00:04<00:04, 11.60it/s]Canonical::  52%|█████▏    | 52/100 [00:04<00:04, 11.59it/s]Canonical::  54%|█████▍    | 54/100 [00:04<00:03, 11.66it/s]Canonical::  56%|█████▌    | 56/100 [00:04<00:03, 11.72it/s]Canonical::  58%|█████▊    | 58/100 [00:04<00:03, 11.75it/s]Canonical::  60%|██████    | 60/100 [00:05<00:03, 11.82it/s]Canonical::  62%|██████▏   | 62/100 [00:05<00:03, 11.93it/s]Canonical::  64%|██████▍   | 64/100 [00:05<00:02, 12.03it/s]Canonical::  66%|██████▌   | 66/100 [00:05<00:02, 12.17it/s]Canonical::  68%|██████▊   | 68/100 [00:05<00:02, 12.30it/s]Canonical::  70%|███████   | 70/100 [00:05<00:02, 11.56it/s]Canonical::  72%|███████▏  | 72/100 [00:06<00:02, 11.87it/s]Canonical::  74%|███████▍  | 74/100 [00:06<00:02, 11.84it/s]Canonical::  76%|███████▌  | 76/100 [00:06<00:02, 11.77it/s]Canonical::  78%|███████▊  | 78/100 [00:06<00:01, 11.21it/s]Canonical::  80%|████████  | 80/100 [00:06<00:01, 11.25it/s]Canonical::  82%|████████▏ | 82/100 [00:06<00:01, 11.20it/s]Canonical::  84%|████████▍ | 84/100 [00:07<00:01, 11.36it/s]Canonical::  86%|████████▌ | 86/100 [00:07<00:01, 11.58it/s]Canonical::  88%|████████▊ | 88/100 [00:07<00:01, 11.76it/s]Canonical::  90%|█████████ | 90/100 [00:07<00:00, 11.82it/s]Canonical::  92%|█████████▏| 92/100 [00:07<00:00, 11.96it/s]Canonical::  94%|█████████▍| 94/100 [00:07<00:00, 12.00it/s]Canonical::  96%|█████████▌| 96/100 [00:08<00:00, 11.94it/s]Canonical::  98%|█████████▊| 98/100 [00:08<00:00, 11.90it/s]Canonical:: 100%|██████████| 100/100 [00:08<00:00, 11.46it/s]Canonical:: 100%|██████████| 100/100 [00:08<00:00, 11.83it/s]
+2026-02-25 23:14:03.516 | INFO     | hugs.utils.general:create_video:91 - Video is saved under output/human_scene/neuman/bike/hugs_trimlp/demo-dataset.seq=bike/2026-02-25_23-12-22/canon_neuman_bike_final_da_pose.mp4
