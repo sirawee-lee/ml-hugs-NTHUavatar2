@@ -119,18 +119,27 @@ def find_file(root: Path, filename: str) -> Optional[Path]:
 
 
 def find_newest_mp4(search_root: Path, after_time: Optional[float] = None) -> Optional[Path]:
-    """Find the most recent .mp4 file (optionally created after a timestamp)."""
-    mp4_files = list(search_root.rglob("*.mp4"))
+    """Find the most recent .mp4 file (optionally created after a timestamp).
     
+    Priority order:
+      1. anim_*.mp4  — actual custom-motion animation render
+      2. Any other *.mp4 (newest by mtime)
+    """
+    mp4_files = list(search_root.rglob("*.mp4"))
+
     if after_time:
         mp4_files = [f for f in mp4_files if f.stat().st_mtime > after_time]
-    
+
     if not mp4_files:
         return None
-    
-    # Return the newest by modification time
-    newest = max(mp4_files, key=lambda p: p.stat().st_mtime)
-    return newest
+
+    # Prefer anim_*.mp4 (the actual animated output) over canonical pose videos
+    anim_files = [f for f in mp4_files if f.name.startswith("anim_")]
+    if anim_files:
+        return max(anim_files, key=lambda p: p.stat().st_mtime)
+
+    # Fallback: return newest by modification time
+    return max(mp4_files, key=lambda p: p.stat().st_mtime)
 
 
 def build_mdm_cmd(
@@ -254,15 +263,22 @@ Examples:
     
     # Rotation and translation
     parser.add_argument(
-        "--center",
-        action="store_true",
-        help="Center translation to mean 0 before rendering",
+        "--tx",
+        type=float,
+        default=0.0,
+        help="Horizontal X offset after centering (default: 0.0)",
+    )
+    parser.add_argument(
+        "--ty",
+        type=float,
+        default=0.0,
+        help="Vertical Y offset (up/down) after centering (default: 0.0). Use positive values to lift avatar up.",
     )
     parser.add_argument(
         "--tz",
         type=float,
         default=1.0,
-        help="Forward offset (Z-axis) after centering (default: 1.0)",
+        help="Depth Z offset after centering (default: 1.0). Controls how far in front of camera.",
     )
     parser.add_argument(
         "--ground",
@@ -271,6 +287,25 @@ Examples:
         help="Snap lowest Z frame to this value to fix floating avatar (default: 0.1, set to None to disable)",
     )
     
+    parser.add_argument(
+        "--center",
+        action="store_true",
+        help="Center translation to mean 0 before rendering",
+    )
+
+    # Rendering mode
+    parser.add_argument(
+        "--human_only",
+        action="store_true",
+        help="Render human avatar only (no background scene). Uses mode=human instead of human_scene.",
+    )
+    parser.add_argument(
+        "--bg_color",
+        default="white",
+        choices=["white", "black"],
+        help="Background color when rendering human only (default: white)",
+    )
+
     # Execution control
     parser.add_argument(
         "--dry_run",
@@ -320,6 +355,8 @@ Examples:
     print(f"Steps:      {args.steps}")
     print(f"Center:     {args.center}")
     print(f"TZ offset:  {args.tz}")
+    print(f"Human only: {args.human_only}")
+    print(f"Bg color:   {args.bg_color if args.human_only else 'N/A (scene render)'}")
     print(f"Dry run:    {args.dry_run}")
     print(f"{'='*80}\n")
     
@@ -450,12 +487,14 @@ Examples:
         "--rx", "90",
         "--rz", "180",
     ]
-    
+
     if args.center:
         rotate_cmd.append("--center")
-    
+
+    rotate_cmd.extend(["--tx", str(args.tx)])
+    rotate_cmd.extend(["--ty", str(args.ty)])
     rotate_cmd.extend(["--tz", str(args.tz)])
-    
+
     if args.ground is not None:
         rotate_cmd.extend(["--ground", str(args.ground)])
     
@@ -482,18 +521,35 @@ Examples:
     print(f"\n[4/5] Running HUGS rendering...")
     
     scene_cfg = SCENE_CONFIGS[args.scene]
-    hugs_config = args.hugs_repo / "cfg_files/release/neuman/hugs_human_scene.yaml"
-    
-    hugs_cmd = [
-        str(args.hugs_py),
-        "main.py",
-        "--cfg_file", str(hugs_config),
-        f"dataset.seq={args.scene}",
-        "eval=true",
-        f"human.ckpt={scene_cfg['human_ckpt']}",
-        f"scene.ckpt={scene_cfg['scene_ckpt']}",
-        f"custom_motion_path={rotated_npz}",
-    ]
+
+    if args.human_only:
+        # Render human avatar only — no background scene GS
+        hugs_config = args.hugs_repo / "cfg_files/release/neuman/hugs_human_scene.yaml"
+        hugs_cmd = [
+            str(args.hugs_py),
+            "main.py",
+            "--cfg_file", str(hugs_config),
+            f"dataset.seq={args.scene}",
+            "eval=true",
+            "mode=human",
+            f"bg_color={args.bg_color}",
+            f"human.ckpt={scene_cfg['human_ckpt']}",
+            f"custom_motion_path={rotated_npz}",
+        ]
+        print(f"  ℹ️  Human-only mode: background scene will NOT be rendered (bg={args.bg_color})")
+    else:
+        # Default: render human + scene together
+        hugs_config = args.hugs_repo / "cfg_files/release/neuman/hugs_human_scene.yaml"
+        hugs_cmd = [
+            str(args.hugs_py),
+            "main.py",
+            "--cfg_file", str(hugs_config),
+            f"dataset.seq={args.scene}",
+            "eval=true",
+            f"human.ckpt={scene_cfg['human_ckpt']}",
+            f"scene.ckpt={scene_cfg['scene_ckpt']}",
+            f"custom_motion_path={rotated_npz}",
+        ]
     
     hugs_log = hugs_logs_dir / "hugs.log"
     

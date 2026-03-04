@@ -85,11 +85,14 @@ def find_cfg_diff(default_cfg, cfg, delimiter='_'):
 
 def create_video(img_folder, output_fname, fps=20):
     os.makedirs(os.path.dirname(output_fname), exist_ok=True)
+    # Quote both input glob and output path to handle special chars (=, spaces, etc.)
     cmd = f"/usr/bin/ffmpeg -hide_banner -loglevel error -framerate {fps} -pattern_type glob -i '{img_folder}/*.png' \
         -vf \"pad=ceil(iw/2)*2:ceil(ih/2)*2\" \
-            -c:v libx264 -pix_fmt yuv420p {output_fname} -y"
+            -c:v libx264 -pix_fmt yuv420p '{output_fname}' -y"
     logger.info(f"Video is saved under {output_fname}")
-    subprocess.call(cmd, shell=True)
+    ret = subprocess.call(cmd, shell=True)
+    if ret != 0:
+        logger.warning(f"ffmpeg returned non-zero exit code {ret} for {output_fname}")
 
 
 def save_images(img, img_fname, txt_label=None):
