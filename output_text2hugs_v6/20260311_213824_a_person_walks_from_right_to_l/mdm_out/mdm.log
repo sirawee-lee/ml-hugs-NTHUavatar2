@@ -1,0 +1,17 @@
+Loading dataset...
+Reading ././dataset/humanml_opt.txt
+Loading dataset t2m ...
+  0%|          | 0/4384 [00:00<?, ?it/s] 10%|▉         | 434/4384 [00:00<00:01, 2928.81it/s] 20%|██        | 897/4384 [00:00<00:00, 3763.02it/s] 29%|██▉       | 1290/4384 [00:00<00:00, 3792.79it/s] 39%|███▊      | 1690/4384 [00:00<00:00, 3867.83it/s] 48%|████▊     | 2083/4384 [00:00<00:00, 3791.85it/s] 56%|█████▋    | 2467/4384 [00:00<00:00, 3763.02it/s] 66%|██████▌   | 2891/4384 [00:00<00:00, 3911.60it/s] 76%|███████▌  | 3323/4384 [00:00<00:00, 4036.67it/s] 85%|████████▌ | 3729/4384 [00:00<00:00, 3938.21it/s] 94%|█████████▍| 4125/4384 [00:01<00:00, 3902.95it/s]100%|██████████| 4384/4384 [00:01<00:00, 3844.18it/s]
+Creating model and diffusion...
+TRANS_ENC init
+EMBED TEXT
+Loading CLIP...
+Loading checkpoints from [/home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/model000750000.pt]...
+checkpoint has no avg model, loading as usual.
+### Sampling [repetitions #0]
+  0%|          | 0/50 [00:00<?, ?it/s] 18%|█▊        | 9/50 [00:00<00:00, 80.19it/s] 36%|███▌      | 18/50 [00:00<00:00, 79.88it/s] 54%|█████▍    | 27/50 [00:00<00:00, 80.44it/s] 72%|███████▏  | 36/50 [00:00<00:00, 80.26it/s] 90%|█████████ | 45/50 [00:00<00:00, 80.69it/s]100%|██████████| 50/50 [00:00<00:00, 80.47it/s]
+created 1 samples
+saving results file to [/home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/samples_humanml_enc_512_50steps_000750000_seed10_a_person_walks_from_right_to_left/results.npy]
+saving visualizations to [/home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/samples_humanml_enc_512_50steps_000750000_seed10_a_person_walks_from_right_to_left]...
+saving samples_humanml_enc_512_50steps_000750000_seed10_a_person_walks_from_right_to_left/samples_00_to_00.mp4
+[Done] Results are at [/home/sigma/skibidi/motion-diffusion-model/save/humanml_enc_512_50steps/samples_humanml_enc_512_50steps_000750000_seed10_a_person_walks_from_right_to_left]

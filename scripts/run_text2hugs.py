@@ -277,14 +277,14 @@ Examples:
     parser.add_argument(
         "--tz",
         type=float,
-        default=1.0,
-        help="Depth Z offset after centering (default: 1.0). Controls how far in front of camera.",
+        default=3.0,
+        help="Depth Z offset after centering (default: 3.0). Controls how far in front of camera.",
     )
     parser.add_argument(
         "--ground",
         type=float,
-        default=0.1,
-        help="Snap lowest Z frame to this value to fix floating avatar (default: 0.1, set to None to disable)",
+        default=1.0,
+        help="Snap lowest Z frame to this value to fix floating avatar (default: 1.0, set to None to disable)",
     )
     
     parser.add_argument(
