@@ -48,8 +48,32 @@ def save_ply(human_gs_out, path):
     f_dc = human_gs_out['shs'][:, :1].transpose(1, 2).flatten(start_dim=1).contiguous().cpu().numpy()
     f_rest = human_gs_out['shs'][:, 1:].transpose(1, 2).flatten(start_dim=1).contiguous().cpu().numpy()
     opacities =  inverse_sigmoid(human_gs_out['opacity']).cpu().numpy()
-    scale = torch.log(human_gs_out['scales_canon']).cpu().numpy()
+    scale = torch.log(torch.clamp(human_gs_out['scales_canon'], min=1e-8)).cpu().numpy()
     rotation = human_gs_out['rotq_canon'].cpu().numpy()
+
+    dtype_full = [(attribute, 'f4') for attribute in construct_list_of_attributes()]
+
+    elements = np.empty(xyz.shape[0], dtype=dtype_full)
+    attributes = np.concatenate((xyz, normals, f_dc, f_rest, opacities, scale, rotation), axis=1)
+    elements[:] = list(map(tuple, attributes))
+    el = PlyElement.describe(elements, 'vertex')
+    PlyData([el]).write(path)
+
+
+def save_posed_ply(human_gs_out, path):
+    """Save Gaussians in their deformed/posed position (matches the animated frame)."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+
+    xyz = human_gs_out['xyz'].cpu().numpy()
+    normals = np.zeros_like(xyz)
+
+    f_dc = human_gs_out['shs'][:, :1].transpose(1, 2).flatten(start_dim=1).contiguous().cpu().numpy()
+    f_rest = human_gs_out['shs'][:, 1:].transpose(1, 2).flatten(start_dim=1).contiguous().cpu().numpy()
+    opacities = inverse_sigmoid(human_gs_out['opacity']).cpu().numpy()
+    # scales from forward() are in linear space (exp-activated for hugs_wo_trimlp,
+    # or GELU-activated for hugs_trimlp). Clamp to avoid log(0) or log(negative).
+    scale = torch.log(torch.clamp(human_gs_out['scales'], min=1e-8)).cpu().numpy()
+    rotation = human_gs_out['rotq'].cpu().numpy()
 
     dtype_full = [(attribute, 'f4') for attribute in construct_list_of_attributes()]
 

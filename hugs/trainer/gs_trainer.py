@@ -29,7 +29,7 @@ from hugs.models.hugs_wo_trimlp import HUGS_WO_TRIMLP
 from hugs.models import SceneGS
 from hugs.utils.init_opt import optimize_init
 from hugs.renderer.gs_renderer import render_human_scene
-from hugs.utils.vis import save_ply
+from hugs.utils.vis import save_ply, save_posed_ply
 from hugs.utils.image import psnr, save_image
 from hugs.utils.general import RandomIndexIterator, load_human_ckpt, save_images, create_video
 
@@ -378,14 +378,14 @@ class GaussianTrainer():
                 if self.scene_gs:
                     self.scene_gs.save_ply(f'{self.cfg.logdir}/meshes/scene_{t_iter:06d}_splat.ply')
                 if self.human_gs:
-                    save_ply(human_gs_out, f'{self.cfg.logdir}/meshes/human_{t_iter:06d}_splat.ply')
+                    save_posed_ply(human_gs_out, f'{self.cfg.logdir}/meshes/human_{t_iter:06d}_splat.ply')
 
                 if self.cfg.mode in ['human', 'human_scene']:
                     self.render_canonical(t_iter, nframes=self.cfg.human.canon_nframes)
                 
             if t_iter % self.cfg.train.anim_interval == 0 and t_iter > 0 and self.cfg.train.anim_interval > 0:
                 if self.human_gs:
-                    save_ply(human_gs_out, f'{self.cfg.logdir}/meshes/human_{t_iter:06d}_splat.ply')
+                    save_posed_ply(human_gs_out, f'{self.cfg.logdir}/meshes/human_{t_iter:06d}_splat.ply')
                 if self.anim_dataset is not None:
                     self.animate(t_iter)
                     
@@ -593,6 +593,10 @@ class GaussianTrainer():
             image = render_pkg["render"]
             
             torchvision.utils.save_image(image, f'{self.cfg.logdir}/anim/{idx:05d}.png')
+
+            if human_gs_out is not None:
+                os.makedirs(f'{self.cfg.logdir}/anim_ply/', exist_ok=True)
+                save_posed_ply(human_gs_out, f'{self.cfg.logdir}/anim_ply/{idx:05d}_splat.ply')
             
         video_fname = f'{self.cfg.logdir}/anim_{self.cfg.dataset.name}_{self.cfg.dataset.seq}_{iter_s}.mp4'
         create_video(f'{self.cfg.logdir}/anim/', video_fname, fps=20)

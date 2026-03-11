@@ -10,3 +10,6 @@ screenshots
 *.pth
 *.zip
 submodules/
+*.ply
+*.mp4
+output_text2hugs/20260311_190610_a_person_jumps/final/anim_ply/00009_splat.ply

@@ -305,6 +305,11 @@ Examples:
         choices=["white", "black"],
         help="Background color when rendering human only (default: white)",
     )
+    parser.add_argument(
+        "--save_ply",
+        action="store_true",
+        help="Save per-frame Gaussian Splat .ply files during animation into anim_ply/ folder",
+    )
 
     # Execution control
     parser.add_argument(
@@ -535,6 +540,7 @@ Examples:
             f"bg_color={args.bg_color}",
             f"human.ckpt={scene_cfg['human_ckpt']}",
             f"custom_motion_path={rotated_npz}",
+            f"save_anim_ply={'true' if args.save_ply else 'false'}",
         ]
         print(f"  ℹ️  Human-only mode: background scene will NOT be rendered (bg={args.bg_color})")
     else:
@@ -549,6 +555,7 @@ Examples:
             f"human.ckpt={scene_cfg['human_ckpt']}",
             f"scene.ckpt={scene_cfg['scene_ckpt']}",
             f"custom_motion_path={rotated_npz}",
+            f"save_anim_ply={'true' if args.save_ply else 'false'}",
         ]
     
     hugs_log = hugs_logs_dir / "hugs.log"
@@ -575,7 +582,7 @@ Examples:
     # ====================
     # Stage 5: Extract final video
     # ====================
-    print(f"\n[5/5] Extracting final video...")
+    print(f"\n[5/5] Extracting final video and PLY frames...")
     
     if not args.dry_run:
         hugs_output_dir = args.hugs_repo / "output"
@@ -590,9 +597,33 @@ Examples:
             print("⚠ No new mp4 files found after HUGS rendering")
             print(f"Searched in: {hugs_output_dir}")
             final_mp4 = None
+
+        # Copy per-frame posed PLY files to the run's final directory
+        anim_ply_dirs = sorted(
+            hugs_output_dir.rglob("anim_ply"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+        # Only consider dirs created after this pipeline run started
+        anim_ply_dirs = [d for d in anim_ply_dirs if d.stat().st_mtime > before_hugs]
+        final_ply_dir = None
+        if anim_ply_dirs:
+            src_ply_dir = anim_ply_dirs[0]
+            final_ply_dir = final_dir / "anim_ply"
+            if final_ply_dir.exists():
+                shutil.rmtree(final_ply_dir)
+            shutil.copytree(src_ply_dir, final_ply_dir)
+            n_ply = len(list(final_ply_dir.glob("*.ply")))
+            print(f"✓ {n_ply} per-frame posed PLY files saved to: {final_ply_dir}")
+            print(f"  Source: {src_ply_dir}")
+        else:
+            print("⚠ No anim_ply directory found after HUGS rendering")
+            final_ply_dir = None
     else:
         print(f"[DRY RUN] Would find newest mp4 in {args.hugs_repo / 'output'}")
+        print(f"[DRY RUN] Would copy anim_ply/ posed PLY frames to {final_dir / 'anim_ply'}")
         final_mp4 = final_dir / "result.mp4"
+        final_ply_dir = final_dir / "anim_ply"
     
     end_time = datetime.now()
     
@@ -614,6 +645,7 @@ Examples:
             "original_npz": str(target_npz) if 'target_npz' in locals() else None,
             "rotated_npz": str(rotated_npz),
             "final_mp4": str(final_mp4) if final_mp4 else None,
+            "final_ply_dir": str(final_ply_dir) if 'final_ply_dir' in locals() and final_ply_dir else None,
         },
         "rotation": {
             "rx_degrees": 90,
@@ -652,6 +684,7 @@ Examples:
     print(f"Original npz:   {target_npz if 'target_npz' in locals() else 'N/A'}")
     print(f"Rotated npz:    {rotated_npz}")
     print(f"Final video:    {final_mp4 if final_mp4 else 'N/A'}")
+    print(f"Posed PLYs:     {final_ply_dir if 'final_ply_dir' in locals() and final_ply_dir else 'N/A'}")
     print(f"Run record:     {record_path}")
     print(f"{'='*80}\n")
 
