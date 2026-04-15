@@ -1,147 +1,178 @@
-# HUGS: Human Gaussian Splats
+# NTHU Avatar — Text-to-Animation Pipeline
 
-This repository is a reference implementation for HUGS. HUGS reconstructs both the background scene and an animatable human from a single video using neural radiance fields.
+Generate a rendered 3D human avatar video from a text prompt, using **MDM** (Motion Diffusion Model) for motion generation and **HUGS** (Human Gaussian Splats) for photorealistic rendering.
 
-[[Paper](https://arxiv.org/abs/2311.17910)] | [[Project Page](https://machinelearning.apple.com/research/hugs)]
-
-> [**HUGS: Human Gaussian Splats**](https://arxiv.org/abs/2311.17910),            
-> [Muhammed Kocabas](https://ps.is.tuebingen.mpg.de/person/mkocabas), 
-> [Jen-Hao Rick Chang](https://rick-chang.github.io/), 
-> [James Gabriel](https://www.linkedin.com/in/jamescgabriel/), 
-> [Oncel Tuzel](https://www.onceltuzel.net/), 
-> [Anurag Ranjan](https://anuragranj.github.io/)       
-> *IEEE Computer Vision and Pattern Recognition (CVPR) 2024* 
-
-<p float="center">
-  <img src="assets/hugs_teaser.png" width="100%" />
-</p>
-
-# Getting Started
-
-We tested our system with Ubuntu 22.04.3 using a CUDA 11.7 compatible GPU.
-
-- Clone our repo:
 ```
-git clone --recursive git@github.com:apple/ml-hugs.git
+Text Prompt → MDM → SMPL Motion → HUGS Rendering → result.mp4
 ```
 
-- Run the setup script to create a conda environment and install the required packages.
+Based on [HUGS: Human Gaussian Splats](https://arxiv.org/abs/2311.17910) (CVPR 2024).
+
+---
+
+## Requirements
+
+- CUDA-capable GPU (tested on CUDA 11.8)
+- [Conda](https://docs.conda.io/en/latest/)
+- The [MDM repo](https://github.com/GuyTevet/motion-diffusion-model) set up alongside this one
+
+---
+
+## Setup
+
+### 1. Clone both repos
+
+```bash
+git clone <this-repo> ml-hugs-NTHUavatar
+git clone https://github.com/GuyTevet/motion-diffusion-model
 ```
+
+### 2. Set up the HUGS environment
+
+```bash
+cd ml-hugs-NTHUavatar
 source scripts/conda_setup.sh
 ```
 
-# Preparing the datasets and models
+### 3. Set up the MDM environment
 
-## Datasets
-- Download the SMPL neutral body model
-    - Register to [SMPL](https://smpl.is.tue.mpg.de/index.html) website.
-    - Download v1.1.0 and SMPL UV obj file from the [download](https://smpl.is.tue.mpg.de/download.php) page.
-    - Extract the files and rename `basicModel_neutral_lbs_10_207_0_v1.0.0.pkl` to `SMPL_NEUTRAL.pkl`.
-    - Put the files into `./data/smpl/` folder with the following structure:
-
-        ```
-        data/smpl/
-        ├── SMPL_NEUTRAL.pkl
-        └── smpl_uv.obj
-        ```
-
-- Download NeuMan dataset and pretrained models:
-    - Data ([download](https://docs-assets.developer.apple.com/ml-research/models/hugs/neuman_data.zip))
-    - Pretrained models ([download](https://docs-assets.developer.apple.com/ml-research/models/hugs/hugs_pretrained_models.zip))
-
-    Alternately, run the following script to set up data and pretrained models.
-    ```
-    source scripts/prepare_data_models.sh
-    ```
-
-- Download AMASS dataset for novel animation rendering:
-  - AMASS dataset is used for rendering novel poses.
-  - We used SFU mocap(SMPL+H G) and MPI_mosh (SMPL+H G) subsets, please download from [AMASS](https://amass.is.tue.mpg.de/download.php).
-  - Put the downloaded mocap data in to `./data/` folder.
-
-After following the above steps, you should obtain a folder structure similar to this:
-
-```
-data/
-├── smpl
-│   ├── SMPL_FEMALE.pkl
-│   ├── SMPL_MALE.pkl
-│   ├── SMPL_NEUTRAL.pkl
-│   ├── smpl_uv.obj
-├── neuman
-│   └── dataset
-│       ├── bike
-│       ├── citron
-│       ├── jogging
-│       ├── lab
-│       ├── parkinglot
-│       └── seattle
-├── MPI_mosh
-│   ├── 00008
-│   ├── 00031
-│   ├── ...
-│   └── 50027
-└── SFU
-    ├── 0005
-    ├── 0007
-    ├── ...
-    └── 0018
+```bash
+cd motion-diffusion-model
+conda env create -f environment.yml
+conda activate mdm
+pip install -e .
+bash prepare/download_smpl_files.sh
+bash prepare/download_glove.sh
 ```
 
-
-# Training
-
-To train HUGS on NeuMan dataset, there are three different modes you can choose from: 1. joint human and scene 2. human only, 3. scene only. 
-
-1. Joint human and scene training
-
-    This is the original HUGS setup where jointly optimize human Gaussians and scene Gaussians. 
-    ```
-    python main.py --cfg_file cfg_files/release/neuman/hugs_human_scene.yaml dataset.seq=lab
-    ```
-
-2. Human only training
-
-    This mode only optimizes the Triplane+MLP model introduced in HUGS.
-
-    ```
-    python main.py --cfg_file cfg_files/release/neuman/hugs_human.yaml dataset.seq=lab
-    ```
-
-
-3. Scene only training
-
-    This setup is identical to original 3DGS paper. Here we provide the script to run it on the NeuMan dataset
-
-    ```
-    python main.py --cfg_file cfg_files/release/neuman/hugs_scene.yaml dataset.seq=lab
-    ```
-
-`cfg_files/release` directory contains the final configuration files we used to train HUGS. Please refer to the [config.py](hugs/cfg/config.py) file to see different config parameters and their meanings.
-
-**Note**: Expect to see slight differences compared to the pretrained models. This is due to the inherent randomness in the rendering process, which makes achieving deterministic results across multiple runs challenging, even when proper seeding is applied. So it is expected to obtain results slightly different than what is reported in the paper.
-
-# Evaluation and Animation
-
-Here we show how to perform evaluation with the pretrained models on the NeuMan dataset.
-
+Download the MDM 50-step checkpoint from [Google Drive](https://drive.google.com/file/d/1cfadR1eZ116TIdXK7qDX1RugAerEiJXr/view) and place it at:
 ```
-python scripts/evaluate.py -o <<path to the output directory>>
+motion-diffusion-model/save/humanml_enc_512_50steps/model000750000.pt
 ```
 
-This command will print out the PSNR, SSIM, and LPIPS metrics for a given pretrained model.
+### 4. Download HUGS data and pretrained models
 
-# Citation
+```bash
+source scripts/prepare_data_models.sh
 ```
-@inproceedings{
-    kocabas2024hugs,
-    title={{HUGS}: Human Gaussian Splatting},
-    author={Kocabas, Muhammed and Chang, Jen-Hao Rick and Gabriel, James and Tuzel, Oncel and Ranjan, Anurag},
-    booktitle = {2024 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-    year = {2024},
-    url={https://arxiv.org/abs/2311.17910}
+
+This downloads:
+- SMPL body model → `data/smpl/`
+- NeuMan dataset → `data/neuman/`
+- Pretrained HUGS checkpoints → `output/pretrained_models/`
+
+---
+
+## Usage
+
+### Quick Start
+
+```bash
+conda activate hugs
+python scripts/run_text2hugs.py \
+  --prompt "a person does a latin dance" \
+  --out_root ./outputs \
+  --human_only \
+  --center \
+  --bg_color white
+```
+
+### Full Arguments
+
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `--prompt` | *(required)* | Text description of the motion |
+| `--out_root` | *(required)* | Root output directory |
+| `--scene` | `bike` | Background scene: `bike`, `citron`, `jogging` |
+| `--human_only` | `False` | Render avatar only without background scene |
+| `--bg_color` | `black` | Background color: `white` or `black` |
+| `--center` | `False` | Zero-center the root translation |
+| `--seed` | `10` | MDM random seed |
+| `--steps` | `50` | Number of diffusion steps |
+| `--mdm_repo` | auto | Path to MDM repository |
+| `--mdm_py` | auto | Python executable for MDM env |
+| `--hugs_py` | auto | Python executable for HUGS env |
+| `--dry_run` | `False` | Print commands without executing |
+
+### Examples
+
+```bash
+# Human only, white background
+python scripts/run_text2hugs.py \
+  --prompt "a person waves hello" \
+  --out_root ./outputs \
+  --human_only --center --bg_color white
+
+# With background scene
+python scripts/run_text2hugs.py \
+  --prompt "a person walks forward" \
+  --scene citron \
+  --out_root ./outputs \
+  --center --tz 1.5
+
+# Dry run to test configuration
+python scripts/run_text2hugs.py \
+  --prompt "a person jumps" \
+  --out_root ./outputs \
+  --dry_run
+```
+
+---
+
+## Output Structure
+
+```
+outputs/<timestamp>_<prompt_slug>/
+├── mdm_out/              # MDM generation artifacts
+├── smpl_npz/
+│   └── hugs_smpl_original.npz   # Raw SMPL parameters
+├── rotated_npz/
+│   └── hugs_smpl_upright.npz    # SMPL in HUGS coordinate system
+├── hugs_logs/
+│   └── hugs.log
+├── final/
+│   └── result.mp4        # Final rendered video
+└── run_record.json       # Run metadata
+```
+
+---
+
+## Available Scenes
+
+| Scene | Description |
+|-------|-------------|
+| `bike` | Outdoor, person near a bicycle |
+| `citron` | Indoor scene |
+| `jogging` | Outdoor jogging path |
+
+Pretrained checkpoints are stored in `output/pretrained_models/<scene>/`.
+
+---
+
+## Pipeline Details
+
+| Stage | What happens |
+|-------|-------------|
+| 1. MDM Generation | Runs `sample.generate` in MDM env to produce SMPL motion |
+| 2. SMPL Extraction | `sample/extract_smpl_params.py` converts MDM output to `.npz` |
+| 3. Coordinate Rotation | `scripts/rotate_hugs_motion_v2.py` applies RX=+90°, RZ=+180° |
+| 4. HUGS Rendering | `main.py` renders the 3D Gaussian Splat avatar |
+| 5. Video Output | Copies `result.mp4` to `final/` |
+
+---
+
+## Citation
+
+```bibtex
+@inproceedings{kocabas2024hugs,
+  title={{HUGS}: Human Gaussian Splatting},
+  author={Kocabas, Muhammed and Chang, Jen-Hao Rick and Gabriel, James and Tuzel, Oncel and Ranjan, Anurag},
+  booktitle={CVPR},
+  year={2024},
+  url={https://arxiv.org/abs/2311.17910}
 }
 ```
 
-# License
-The code is released under the [LICENSE](LICENSE) terms.
+## License
+
+This project is released under the [LICENSE](LICENSE) terms from the original HUGS repository.
