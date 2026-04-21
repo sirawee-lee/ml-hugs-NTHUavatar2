@@ -34,6 +34,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
+# Speech I/O (optional — requires openai-whisper, sounddevice, scipy, higgs-audio)
+sys.path.insert(0, str(Path(__file__).parent))
+try:
+    from speech_io import browser_record_and_transcribe, record_and_transcribe, speak_text
+    _SPEECH_AVAILABLE = True
+except ImportError:
+    _SPEECH_AVAILABLE = False
+
 
 # Default paths
 DEFAULT_MDM_REPO = Path("/home/sigma/skibidi/motion-diffusion-model")
@@ -203,8 +211,8 @@ Examples:
     # Required arguments
     parser.add_argument(
         "--prompt",
-        required=True,
-        help="Text prompt for MDM motion generation",
+        default=None,
+        help="Text prompt for MDM motion generation. Omit when using --speech-input.",
     )
     parser.add_argument(
         "--out_root",
@@ -277,8 +285,8 @@ Examples:
     parser.add_argument(
         "--tz",
         type=float,
-        default=3.0,
-        help="Depth Z offset after centering (default: 3.0). Controls how far in front of camera.",
+        default=1.0,
+        help="Depth Z offset after centering (default: 1.0). Controls how far in front of camera.",
     )
     parser.add_argument(
         "--ground",
@@ -311,6 +319,75 @@ Examples:
         help="Save per-frame Gaussian Splat .ply files during animation into anim_ply/ folder",
     )
 
+    # Speech I/O
+    parser.add_argument(
+        "--audio-file",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="Path to a pre-recorded audio file (wav/mp3/ogg/webm/etc.) to transcribe with Whisper and use as the prompt",
+    )
+    parser.add_argument(
+        "--speech-input",
+        action="store_true",
+        help="Record from the local ALSA mic and use Whisper transcription as the prompt",
+    )
+    parser.add_argument(
+        "--browser-input",
+        action="store_true",
+        help=(
+            "Serve a recording page over HTTP so you can speak from a remote browser "
+            "(use this when working via AnyDesk/VNC/SSH where the local mic is unavailable)"
+        ),
+    )
+    parser.add_argument(
+        "--browser-port",
+        type=int,
+        default=9876,
+        help="Port for the --browser-input HTTP server (default: 9876)",
+    )
+    parser.add_argument(
+        "--speech-output",
+        action="store_true",
+        help="Read the transcribed prompt and final status aloud (HiggsAudio v2, falls back to espeak)",
+    )
+    parser.add_argument(
+        "--tts-save-wav",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="Save TTS speech to this WAV file instead of (or in addition to) playing — useful over AnyDesk/VNC where audio forwarding may not work",
+    )
+    parser.add_argument(
+        "--record-duration",
+        type=float,
+        default=8.0,
+        metavar="SECS",
+        help="Microphone recording duration in seconds for --speech-input (default: 8.0)",
+    )
+    parser.add_argument(
+        "--whisper-model",
+        default="base",
+        choices=["tiny", "base", "small", "medium", "large"],
+        help="Whisper model size for STT (default: base)",
+    )
+    parser.add_argument(
+        "--alsa-device",
+        default="plughw:0,0",
+        help="ALSA capture device for arecord fallback (default: plughw:0,0). "
+             "Run 'arecord -l' to list cards. E.g. 'plughw:CARD=PCH,DEV=0'.",
+    )
+    parser.add_argument(
+        "--higgs-model-path",
+        default="bosonai/higgs-audio-v2-generation-3B-base",
+        help="HiggsAudio v2 model path or HuggingFace ID (default: bosonai/higgs-audio-v2-generation-3B-base)",
+    )
+    parser.add_argument(
+        "--higgs-tokenizer-path",
+        default="bosonai/higgs-audio-v2-tokenizer",
+        help="HiggsAudio v2 tokenizer path or HuggingFace ID (default: bosonai/higgs-audio-v2-tokenizer)",
+    )
+
     # Execution control
     parser.add_argument(
         "--dry_run",
@@ -319,7 +396,65 @@ Examples:
     )
     
     args = parser.parse_args()
-    
+
+    # ── Speech input: record + transcribe → use as prompt ─────────────────────
+    if args.audio_file:
+        if not _SPEECH_AVAILABLE:
+            print("❌ --audio-file requires openai-whisper.")
+            print("   pip install openai-whisper")
+            sys.exit(1)
+        audio_path = args.audio_file.resolve()
+        if not audio_path.exists():
+            print(f"❌ Audio file not found: {audio_path}")
+            sys.exit(1)
+        from speech_io import transcribe
+        args.prompt = transcribe(audio_path, model_size=args.whisper_model)
+        if not args.prompt:
+            print("❌ Whisper returned empty transcription. Please try again.")
+            sys.exit(1)
+    elif args.browser_input:
+        if not _SPEECH_AVAILABLE:
+            print("❌ --browser-input requires openai-whisper.")
+            print("   pip install openai-whisper")
+            sys.exit(1)
+        args.prompt = browser_record_and_transcribe(
+            port=args.browser_port,
+            model_size=args.whisper_model,
+        )
+        if not args.prompt:
+            print("❌ Whisper returned empty transcription. Please try again.")
+            sys.exit(1)
+    elif args.speech_input:
+        if not _SPEECH_AVAILABLE:
+            print("❌ --speech-input requires openai-whisper and sounddevice.")
+            print("   pip install openai-whisper sounddevice scipy")
+            sys.exit(1)
+        args.prompt = record_and_transcribe(
+            duration=args.record_duration,
+            model_size=args.whisper_model,
+            alsa_device=args.alsa_device,
+        )
+        if not args.prompt:
+            print("❌ Whisper returned empty transcription. Please try again.")
+            sys.exit(1)
+    elif args.prompt is None:
+        print("❌ Either --prompt TEXT or --speech-input is required.")
+        parser.print_usage()
+        sys.exit(1)
+
+    def _speak(text: str, out_wav: str | None = None) -> None:
+        """Speak text if --speech-output is enabled."""
+        if args.speech_output:
+            if not _SPEECH_AVAILABLE:
+                print("[TTS] --speech-output requested but speech_io not importable. Skipping.")
+                return
+            speak_text(
+                text,
+                model_path=args.higgs_model_path,
+                tokenizer_path=args.higgs_tokenizer_path,
+                out_wav=out_wav,
+            )
+
     # Validate paths
     if not args.dry_run:
         if not args.mdm_repo.exists():
@@ -354,6 +489,7 @@ Examples:
     print("TEXT → MDM → HUGS Pipeline")
     print(f"{'='*80}")
     print(f"Prompt:     {args.prompt}")
+    _speak(f"{args.prompt}")
     print(f"Scene:      {args.scene}")
     print(f"Run dir:    {run_dir}")
     print(f"Seed:       {args.seed}")

@@ -1,0 +1,1 @@
+{"text": " A person dancing for 10 seconds.", "segments": [{"id": 0, "seek": 0, "start": 0.0, "end": 3.0, "text": " A person dancing for 10 seconds.", "tokens": [50364, 316, 954, 8898, 337, 1266, 3949, 13, 50514], "temperature": 0.0, "avg_logprob": -0.44922194480895994, "compression_ratio": 0.8, "no_speech_prob": 0.04095761105418205}], "language": "English"}

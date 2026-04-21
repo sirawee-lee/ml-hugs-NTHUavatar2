@@ -12,6 +12,7 @@ screenshots/
 *.pth
 *.zip
 submodules/
+higgs-audio/
 *.ply
 *.mp4
 *.log
