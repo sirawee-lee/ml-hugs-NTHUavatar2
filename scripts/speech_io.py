@@ -2,6 +2,7 @@
 
 STT: OpenAI Whisper (local)
 TTS: HiggsAudio v2 by Boson AI (local)
+LLM prompt refinement: Ollama (local)
 
 Dependencies (install into the environment that runs run_text2hugs.py):
   pip install openai-whisper sounddevice scipy
@@ -9,6 +10,11 @@ Dependencies (install into the environment that runs run_text2hugs.py):
   # HiggsAudio v2:
   git clone https://github.com/boson-ai/higgs-audio
   cd higgs-audio && pip install -e .
+
+  # Ollama (prompt refinement):
+  curl -fsSL https://ollama.com/install.sh | sh
+  ollama pull llama3.2          # or mistral, phi3, etc.
+  pip install ollama
 """
 
 import tempfile
@@ -282,6 +288,63 @@ def browser_record_and_transcribe(
         return transcribe(audio_path, model_size=model_size)
     finally:
         audio_path.unlink(missing_ok=True)
+
+
+# ── Prompt refinement (Ollama) ───────────────────────────────────────────────
+
+_REFINE_SYSTEM = (
+    "You are a prompt engineer for a 3D human motion generation model. "
+    "Your job is to rewrite raw speech transcriptions into clean, concise motion prompts. "
+    "Rules:\n"
+    "- Start with 'a person'\n"
+    "- Describe only the body motion (no camera, no scene, no emotion backstory)\n"
+    "- Keep it under 15 words\n"
+    "- Remove filler words (um, uh, like, you know, so, basically)\n"
+    "- Use present continuous tense (e.g. 'walking forward', 'jumping in place')\n"
+    "- Output ONLY the refined prompt, nothing else"
+)
+
+
+def refine_prompt(
+    raw_text: str,
+    model: str = "llama3.2",
+    host: str = "http://localhost:11434",
+) -> str:
+    """Use a local Ollama LLM to rewrite a raw Whisper transcription into a
+    clean MDM motion prompt.
+
+    Args:
+        raw_text:  Raw transcription from Whisper.
+        model:     Ollama model name (default: llama3.2). Run 'ollama list' to see
+                   what is installed; alternatives: mistral, phi3, llama3.1.
+        host:      Ollama server URL (default: http://localhost:11434).
+
+    Returns:
+        Refined prompt string, or the original text if Ollama is unavailable.
+    """
+    try:
+        import ollama
+    except ImportError:
+        print("[LLM] ollama package not installed — skipping refinement.")
+        print("[LLM]   pip install ollama")
+        return raw_text
+
+    try:
+        client = ollama.Client(host=host)
+        response = client.chat(
+            model=model,
+            messages=[
+                {"role": "system", "content": _REFINE_SYSTEM},
+                {"role": "user", "content": raw_text},
+            ],
+        )
+        refined = response["message"]["content"].strip().strip('"').strip("'")
+        print(f"[LLM] Raw Whisper:    {raw_text!r}")
+        print(f"[LLM] Refined prompt: {refined!r}")
+        return refined
+    except Exception as exc:
+        print(f"[LLM] Ollama error ({exc}) — using raw Whisper text.")
+        return raw_text
 
 
 # ── TTS (HiggsAudio v2 with espeak fallback) ─────────────────────────────────

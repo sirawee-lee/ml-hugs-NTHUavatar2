@@ -37,7 +37,7 @@ from typing import List, Optional
 # Speech I/O (optional — requires openai-whisper, sounddevice, scipy, higgs-audio)
 sys.path.insert(0, str(Path(__file__).parent))
 try:
-    from speech_io import browser_record_and_transcribe, record_and_transcribe, speak_text
+    from speech_io import browser_record_and_transcribe, record_and_transcribe, refine_prompt, speak_text
     _SPEECH_AVAILABLE = True
 except ImportError:
     _SPEECH_AVAILABLE = False
@@ -372,6 +372,16 @@ Examples:
         help="Whisper model size for STT (default: base)",
     )
     parser.add_argument(
+        "--refine-prompt",
+        action="store_true",
+        help="Use a local Ollama LLM to rewrite the Whisper transcription into a clean MDM motion prompt",
+    )
+    parser.add_argument(
+        "--ollama-model",
+        default="llama3.2",
+        help="Ollama model to use for prompt refinement (default: llama3.2)",
+    )
+    parser.add_argument(
         "--alsa-device",
         default="plughw:0,0",
         help="ALSA capture device for arecord fallback (default: plughw:0,0). "
@@ -441,6 +451,10 @@ Examples:
         print("❌ Either --prompt TEXT or --speech-input is required.")
         parser.print_usage()
         sys.exit(1)
+
+    # ── Optional LLM prompt refinement ───────────────────────────────────────
+    if args.refine_prompt:
+        args.prompt = refine_prompt(args.prompt, model=args.ollama_model)
 
     def _speak(text: str, out_wav: str | None = None) -> None:
         """Speak text if --speech-output is enabled."""
