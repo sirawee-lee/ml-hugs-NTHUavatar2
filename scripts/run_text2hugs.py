@@ -30,6 +30,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
@@ -48,6 +49,66 @@ DEFAULT_MDM_REPO = Path("/home/sigma/skibidi/motion-diffusion-model")
 DEFAULT_HUGS_REPO = Path("/home/sigma/project_avatar2_hugs/ml-hugs-NTHUavatar")
 DEFAULT_MDM_PY = Path("/home/sigma/anaconda3/envs/mdm/bin/python")
 DEFAULT_HUGS_PY = Path("/home/sigma/anaconda3/envs/hugs/bin/python")
+
+class StageBenchmark:
+    """Lightweight per-stage timer. Call start() before each stage, end() after."""
+
+    def __init__(self) -> None:
+        self.stages: List[dict] = []
+        self._t0: Optional[float] = None
+        self._num: Optional[int] = None
+        self._name: Optional[str] = None
+
+    def start(self, num: int, name: str) -> None:
+        self._num = num
+        self._name = name
+        self._t0 = time.perf_counter()
+
+    def end(
+        self,
+        status: str = 'success',   # 'success' | 'failed' | 'skipped'
+        error: Optional[str] = None,
+        output_path: Optional[str] = None,
+        log_file: Optional[str] = None,
+    ) -> dict:
+        elapsed = round(time.perf_counter() - self._t0, 3) if self._t0 is not None else None
+        record = {
+            'stage':            self._num,
+            'name':             self._name,
+            'duration_seconds': elapsed,
+            'status':           status,
+            'error':            error,
+            'output_path':      output_path,
+            'log_file':         log_file,
+            'end_iso':          datetime.now().isoformat(),
+        }
+        self.stages.append(record)
+        self._t0 = None
+        return record
+
+    def total_seconds(self) -> float:
+        return round(sum(s['duration_seconds'] or 0.0 for s in self.stages), 3)
+
+    def save(self, run_dir: Path) -> tuple:
+        """Write benchmark_timing.json and benchmark_timing.csv into run_dir."""
+        import csv as _csv
+
+        summary = {'total_duration_seconds': self.total_seconds(), 'stages': self.stages}
+
+        json_path = run_dir / 'benchmark_timing.json'
+        with open(json_path, 'w') as f:
+            json.dump(summary, f, indent=2)
+
+        csv_path = run_dir / 'benchmark_timing.csv'
+        fields = ['stage', 'name', 'duration_seconds', 'status', 'error',
+                  'output_path', 'log_file', 'end_iso']
+        with open(csv_path, 'w', newline='') as f:
+            w = _csv.DictWriter(f, fieldnames=fields, extrasaction='ignore')
+            w.writeheader()
+            w.writerows(self.stages)
+
+        return json_path, csv_path
+
 
 # HUGS scene configurations
 SCENE_CONFIGS = {
@@ -517,10 +578,12 @@ Examples:
     
     start_time = datetime.now()
     executed_commands = []
+    bench = StageBenchmark()
     
     # ====================
     # Stage 1: Run MDM
     # ====================
+    bench.start(1, "Run MDM motion generation")
     print(f"\n[1/5] Running MDM motion generation...")
     mdm_cmd = build_mdm_cmd(
         prompt=args.prompt,
@@ -539,18 +602,25 @@ Examples:
         cwd=args.mdm_repo,
         dry_run=args.dry_run,
     ):
+        bench.end(status='failed', log_file=str(mdm_log))
         print("❌ MDM generation failed")
         sys.exit(1)
-    
+
     executed_commands.append({
         "stage": "mdm",
         "cmd": " ".join(str(c) for c in mdm_cmd),
         "cwd": str(args.mdm_repo),
     })
-    
+    bench.end(
+        status='skipped' if args.dry_run else 'success',
+        output_path=str(mdm_out_dir),
+        log_file=str(mdm_log),
+    )
+
     # ====================
     # Stage 2: results.npy → hugs_smpl_original.npz via extract_smpl_params.py
     # ====================
+    bench.start(2, "Extract SMPL parameters from MDM output")
     print(f"\n[2/5] Extracting SMPL parameters from MDM output...")
 
     target_npz = smpl_npz_dir / "hugs_smpl_original.npz"
@@ -579,6 +649,7 @@ Examples:
             results_npy = find_file(args.mdm_repo / "save", "results.npy")
 
         if results_npy is None or not results_npy.exists():
+            bench.end(status='failed', error='results.npy not found', log_file=str(mdm_log))
             print("❌ results.npy not found in MDM save directory")
             print(f"Searched in: {mdm_save_dir}")
             print(f"MDM log: {mdm_log}")
@@ -603,6 +674,7 @@ Examples:
             cwd=args.mdm_repo,   # must run from MDM root for relative model paths
             dry_run=args.dry_run,
         ):
+            bench.end(status='failed', log_file=str(extract_log))
             print("❌ SMPL extraction failed")
             print(f"See log: {extract_log}")
             sys.exit(1)
@@ -621,14 +693,17 @@ Examples:
             )
 
         print(f"✓ SMPL npz ready: {target_npz}")
+        bench.end(status='success', output_path=str(target_npz), log_file=str(extract_log))
 
     else:
         print(f"[DRY RUN] Would run extract_smpl_params.py on MDM results.npy")
         print(f"[DRY RUN] Target: {target_npz}")
+        bench.end(status='skipped')
     
     # ====================
     # Stage 3: Rotate to HUGS coordinates
     # ====================
+    bench.start(3, "Rotate SMPL motion to HUGS coordinates")
     print(f"\n[3/5] Rotating SMPL motion to HUGS coordinates...")
     
     rotate_script = args.hugs_repo / "scripts/rotate_hugs_motion_v2.py"
@@ -661,18 +736,25 @@ Examples:
         cwd=args.hugs_repo,
         dry_run=args.dry_run,
     ):
+        bench.end(status='failed', log_file=str(rotate_log))
         print("❌ Rotation failed")
         sys.exit(1)
-    
+
     executed_commands.append({
         "stage": "rotate",
         "cmd": " ".join(str(c) for c in rotate_cmd),
         "cwd": str(args.hugs_repo),
     })
-    
+    bench.end(
+        status='skipped' if args.dry_run else 'success',
+        output_path=str(rotated_npz),
+        log_file=str(rotate_log),
+    )
+
     # ====================
     # Stage 4: Run HUGS rendering
     # ====================
+    bench.start(4, "Run HUGS rendering")
     print(f"\n[4/5] Running HUGS rendering...")
     
     scene_cfg = SCENE_CONFIGS[args.scene]
@@ -720,18 +802,25 @@ Examples:
         cwd=args.hugs_repo,
         dry_run=args.dry_run,
     ):
+        bench.end(status='failed', log_file=str(hugs_log))
         print("❌ HUGS rendering failed")
         sys.exit(1)
-    
+
     executed_commands.append({
         "stage": "hugs",
         "cmd": " ".join(str(c) for c in hugs_cmd),
         "cwd": str(args.hugs_repo),
     })
-    
+    bench.end(
+        status='skipped' if args.dry_run else 'success',
+        output_path=str(hugs_logs_dir),
+        log_file=str(hugs_log),
+    )
+
     # ====================
     # Stage 5: Extract final video
     # ====================
+    bench.start(5, "Extract final video and PLY frames")
     print(f"\n[5/5] Extracting final video and PLY frames...")
     
     if not args.dry_run:
@@ -775,8 +864,12 @@ Examples:
         final_mp4 = final_dir / "result.mp4"
         final_ply_dir = final_dir / "anim_ply"
     
+    bench.end(
+        status='skipped' if args.dry_run else 'success',
+        output_path=str(final_dir),
+    )
     end_time = datetime.now()
-    
+
     # ====================
     # Save run record
     # ====================
@@ -816,12 +909,20 @@ Examples:
         },
         "executed_commands": executed_commands,
         "scene_checkpoints": scene_cfg,
+        "benchmark": {
+            "total_duration_seconds": bench.total_seconds(),
+            "stages": bench.stages,
+        },
     }
-    
+
+    bench_json, bench_csv = bench.save(run_dir)
+
     record_path = run_dir / "run_record.json"
     with open(record_path, 'w') as f:
         json.dump(record_data, f, indent=2)
-    print(f"\n✓ Saved run record to: {record_path}")
+    print(f"\n✓ Saved run record to:  {record_path}")
+    print(f"✓ Benchmark JSON:       {bench_json}")
+    print(f"✓ Benchmark CSV:        {bench_csv}")
     
     # ====================
     # Summary
@@ -836,6 +937,20 @@ Examples:
     print(f"Final video:    {final_mp4 if final_mp4 else 'N/A'}")
     print(f"Posed PLYs:     {final_ply_dir if 'final_ply_dir' in locals() and final_ply_dir else 'N/A'}")
     print(f"Run record:     {record_path}")
+
+    print(f"\n{'─'*80}")
+    print("  Benchmark Timing")
+    print(f"{'─'*80}")
+    print(f"  {'#':<4} {'Stage':<42} {'Duration':>10}  {'Status'}")
+    print(f"  {'─'*4} {'─'*42} {'─'*10}  {'─'*8}")
+    for s in bench.stages:
+        dur = f"{s['duration_seconds']:.1f}s" if s['duration_seconds'] is not None else '—'
+        status_icon = {'success': '✓', 'failed': '✗', 'skipped': '–'}.get(s['status'], s['status'])
+        print(f"  {s['stage']:<4} {s['name']:<42} {dur:>10}  {status_icon} {s['status']}")
+    print(f"  {'─'*4} {'─'*42} {'─'*10}  {'─'*8}")
+    print(f"  {'':4} {'TOTAL':<42} {bench.total_seconds():.1f}s")
+    print(f"{'─'*80}")
+    print(f"  Benchmark CSV:  {bench_csv}")
     print(f"{'='*80}\n")
 
 
