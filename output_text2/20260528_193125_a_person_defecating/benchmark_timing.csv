@@ -1,0 +1,6 @@
+stage,name,duration_seconds,status,error,output_path,log_file,end_iso
+1,Run MDM motion generation,14.92,success,,output_text2/20260528_193125_a_person_defecating/mdm_out,output_text2/20260528_193125_a_person_defecating/mdm_out/mdm.log,2026-05-28T19:31:40.754156
+2,Extract SMPL parameters from MDM output,52.174,success,,output_text2/20260528_193125_a_person_defecating/smpl_npz/hugs_smpl_original.npz,output_text2/20260528_193125_a_person_defecating/mdm_out/extract_smpl.log,2026-05-28T19:32:32.927918
+3,Rotate SMPL motion to HUGS coordinates,0.154,success,,output_text2/20260528_193125_a_person_defecating/rotated_npz/hugs_smpl_upright.npz,output_text2/20260528_193125_a_person_defecating/rotated_npz/rotate.log,2026-05-28T19:32:33.081945
+4,Run HUGS rendering,415.267,success,,output_text2/20260528_193125_a_person_defecating/hugs_logs,output_text2/20260528_193125_a_person_defecating/hugs_logs/hugs.log,2026-05-28T19:39:28.349005
+5,Extract final video and PLY frames,9.225,success,,output_text2/20260528_193125_a_person_defecating/final,,2026-05-28T19:39:37.573820

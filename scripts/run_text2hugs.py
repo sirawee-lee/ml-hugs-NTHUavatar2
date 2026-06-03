@@ -38,7 +38,7 @@ from typing import List, Optional
 # Speech I/O (optional — requires openai-whisper, sounddevice, scipy, higgs-audio)
 sys.path.insert(0, str(Path(__file__).parent))
 try:
-    from speech_io import browser_record_and_transcribe, record_and_transcribe, refine_prompt, speak_text
+    from speech_io import browser_record_and_transcribe, record_and_transcribe, refine_prompt, normalize_prompt, speak_text
     _SPEECH_AVAILABLE = True
 except ImportError:
     _SPEECH_AVAILABLE = False
@@ -513,7 +513,11 @@ Examples:
         parser.print_usage()
         sys.exit(1)
 
-    # ── Optional LLM prompt refinement ───────────────────────────────────────
+    # ── Always normalize prompt to 'a person ...' format ─────────────────────
+    if _SPEECH_AVAILABLE:
+        args.prompt = normalize_prompt(args.prompt, model=args.ollama_model)
+
+    # ── Optional LLM prompt refinement (extra cleanup for speech input) ───────
     if args.refine_prompt:
         args.prompt = refine_prompt(args.prompt, model=args.ollama_model)
 

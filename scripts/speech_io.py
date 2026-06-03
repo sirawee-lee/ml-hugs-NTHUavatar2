@@ -292,6 +292,22 @@ def browser_record_and_transcribe(
 
 # ── Prompt refinement (Ollama) ───────────────────────────────────────────────
 
+_NORMALIZE_SYSTEM = (
+    "You are a prompt formatter for a 3D human motion generation model. "
+    "The model only accepts prompts that start with 'a person'. "
+    "Your job is to rewrite ANY user input into that format. "
+    "Rules:\n"
+    "- The output MUST start with exactly 'a person'\n"
+    "- Strip any imperative/request prefix (show me, give me, generate, make, I want to see, can you, please, etc.)\n"
+    "- Describe only the body motion, keep it under 15 words\n"
+    "- Use present continuous tense (e.g. 'a person dancing', 'a person walking forward')\n"
+    "- Output ONLY the rewritten prompt — no explanation, no quotes\n"
+    "Examples:\n"
+    "  'show me a person is dancing' → 'a person dancing'\n"
+    "  'generate someone running fast' → 'a person running fast'\n"
+    "  'a person jumping' → 'a person jumping'"
+)
+
 _REFINE_SYSTEM = (
     "You are a prompt engineer for a 3D human motion generation model. "
     "Your job is to rewrite raw speech transcriptions into clean, concise motion prompts. "
@@ -303,6 +319,45 @@ _REFINE_SYSTEM = (
     "- Use present continuous tense (e.g. 'walking forward', 'jumping in place')\n"
     "- Output ONLY the refined prompt, nothing else"
 )
+
+
+def normalize_prompt(
+    raw_text: str,
+    model: str = "llama3.2",
+    host: str = "http://localhost:11434",
+) -> str:
+    """Normalize any user-typed prompt into the 'a person ...' format MDM expects.
+
+    Always safe to call — falls back to the original text if Ollama is unavailable.
+    Input:  'show me a person is dancing'
+    Output: 'a person dancing'
+    """
+    try:
+        import ollama
+    except ImportError:
+        print("[LLM] ollama not installed — skipping prompt normalization.")
+        return raw_text
+
+    try:
+        client = ollama.Client(host=host)
+        response = client.chat(
+            model=model,
+            messages=[
+                {"role": "system", "content": _NORMALIZE_SYSTEM},
+                {"role": "user", "content": raw_text},
+            ],
+        )
+        normalized = response["message"]["content"].strip().strip('"').strip("'")
+        # Hard guarantee: output must start with "a person"
+        if not normalized.lower().startswith("a person"):
+            normalized = "a person " + normalized
+        if normalized != raw_text:
+            print(f"[LLM] Input prompt:      {raw_text!r}")
+            print(f"[LLM] Normalized prompt: {normalized!r}")
+        return normalized
+    except Exception as exc:
+        print(f"[LLM] Ollama error ({exc}) — using prompt as-is.")
+        return raw_text
 
 
 def refine_prompt(
