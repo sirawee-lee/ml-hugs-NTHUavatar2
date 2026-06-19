@@ -364,20 +364,23 @@ Examples:
 
     # Rendering mode
     parser.add_argument(
-        "--human_only",
-        action="store_true",
-        help="Render human avatar only (no background scene). Uses mode=human instead of human_scene.",
-    )
-    parser.add_argument(
         "--bg_color",
         default="white",
         choices=["white", "black"],
-        help="Background color when rendering human only (default: white)",
+        help="Background color for human-only rendering (default: white)",
     )
     parser.add_argument(
         "--save_ply",
         action="store_true",
         help="Save per-frame Gaussian Splat .ply files during animation into anim_ply/ folder",
+    )
+    parser.add_argument(
+        "--subsample-k",
+        type=int,
+        default=1,
+        choices=[1, 2, 4],
+        dest="subsample_k",
+        help="Export every k-th frame during animation (1=all frames, 2=half, 4=quarter; default: 1)",
     )
 
     # Speech I/O
@@ -575,8 +578,7 @@ Examples:
     print(f"Steps:      {args.steps}")
     print(f"Center:     {args.center}")
     print(f"TZ offset:  {args.tz}")
-    print(f"Human only: {args.human_only}")
-    print(f"Bg color:   {args.bg_color if args.human_only else 'N/A (scene render)'}")
+    print(f"Bg color:   {args.bg_color}")
     print(f"Dry run:    {args.dry_run}")
     print(f"{'='*80}\n")
     
@@ -763,37 +765,21 @@ Examples:
     
     scene_cfg = SCENE_CONFIGS[args.scene]
 
-    if args.human_only:
-        # Render human avatar only — no background scene GS
-        hugs_config = args.hugs_repo / "cfg_files/release/neuman/hugs_human_scene.yaml"
-        hugs_cmd = [
-            str(args.hugs_py),
-            "main.py",
-            "--cfg_file", str(hugs_config),
-            f"dataset.seq={args.scene}",
-            "eval=true",
-            "mode=human",
-            f"bg_color={args.bg_color}",
-            f"human.ckpt={scene_cfg['human_ckpt']}",
-            f"custom_motion_path={rotated_npz}",
-            f"save_anim_ply={'true' if args.save_ply else 'false'}",
-        ]
-        print(f"  ℹ️  Human-only mode: background scene will NOT be rendered (bg={args.bg_color})")
-    else:
-        # Default: render human + scene together
-        hugs_config = args.hugs_repo / "cfg_files/release/neuman/hugs_human_scene.yaml"
-        hugs_cmd = [
-            str(args.hugs_py),
-            "main.py",
-            "--cfg_file", str(hugs_config),
-            f"dataset.seq={args.scene}",
-            "eval=true",
-            f"human.ckpt={scene_cfg['human_ckpt']}",
-            f"scene.ckpt={scene_cfg['scene_ckpt']}",
-            f"custom_motion_path={rotated_npz}",
-            f"save_anim_ply={'true' if args.save_ply else 'false'}",
-        ]
-    
+    hugs_config = args.hugs_repo / "cfg_files/release/neuman/hugs_human_scene.yaml"
+    hugs_cmd = [
+        str(args.hugs_py),
+        "main.py",
+        "--cfg_file", str(hugs_config),
+        f"dataset.seq={args.scene}",
+        "eval=true",
+        "mode=human",
+        f"bg_color={args.bg_color}",
+        f"human.ckpt={scene_cfg['human_ckpt']}",
+        f"custom_motion_path={rotated_npz}",
+        f"save_anim_ply={'true' if args.save_ply else 'false'}",
+        f"anim_subsample_k={args.subsample_k}",
+    ]
+
     hugs_log = hugs_logs_dir / "hugs.log"
     
     # Record timestamp before HUGS run to find new mp4 files

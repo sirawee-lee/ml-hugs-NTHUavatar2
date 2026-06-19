@@ -92,7 +92,7 @@ def time_render(means3D, colors, opacity, scales, rotations, data, n_warmup=5, n
 
 # ── main ───────────────────────────────────────────────────────────────────
 PLY = ('output/human_scene/neuman/bike/hugs_trimlp/'
-       'demo-dataset.seq=bike/2026-04-21_23-34-02/anim_ply/00091_splat.ply')
+       'demo-dataset.seq=bike/2026-06-05_10-17-00/anim_ply/00091_splat.ply')
 
 data_np, pidx, total = load_ply(PLY)
 print(f"Loaded {total:,} Gaussians from PLY")
@@ -144,6 +144,7 @@ targets = sorted(set(t for t in targets if t <= total))
 
 print(f"\n{'Gaussians':>12}  {'ms/frame':>10}  {'FPS':>8}")
 print('-' * 34)
+results = []
 for n in targets:
     xyz   = xyz_all[:n].contiguous()
     opac  = opac_act[:n].contiguous()
@@ -152,4 +153,42 @@ for n in targets:
     colors = torch.full((n, 3), 0.5, device='cuda')   # flat grey — no SH needed
 
     ms = time_render(xyz, colors, opac, sc, rot, cam)
-    print(f"{n:>12,}  {ms:>10.2f}  {1000/ms:>8.1f}")
+    fps = 1000 / ms
+    results.append((n, ms, fps))
+    print(f"{n:>12,}  {ms:>10.2f}  {fps:>8.1f}")
+
+# ── plot ───────────────────────────────────────────────────────────────────
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+counts = [r[0] for r in results]
+ms_vals = [r[1] for r in results]
+fps_vals = [r[2] for r in results]
+
+fig, ax1 = plt.subplots(figsize=(8, 5))
+
+color_ms  = '#2196F3'
+color_fps = '#F44336'
+
+ax1.plot(counts, ms_vals, 'o-', color=color_ms, linewidth=2, markersize=6, label='ms/frame')
+ax1.set_xlabel('Number of Gaussians')
+ax1.set_ylabel('Render time (ms/frame)', color=color_ms)
+ax1.tick_params(axis='y', labelcolor=color_ms)
+ax1.set_xticks(counts)
+ax1.set_xticklabels([f'{c:,}' for c in counts], rotation=15)
+
+ax2 = ax1.twinx()
+ax2.plot(counts, fps_vals, 's--', color=color_fps, linewidth=2, markersize=6, label='FPS')
+ax2.set_ylabel('FPS', color=color_fps)
+ax2.tick_params(axis='y', labelcolor=color_fps)
+
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
+
+plt.title('GaussianRasterizer: render time & FPS vs Gaussian count')
+plt.tight_layout()
+out = 'benchmark_gaussians.png'
+plt.savefig(out, dpi=150)
+print(f"\nPlot saved to {out}")

@@ -563,7 +563,10 @@ class GaussianTrainer():
         
         os.makedirs(f'{self.cfg.logdir}/anim/', exist_ok=True)
         
+        k = getattr(self.cfg, 'anim_subsample_k', 1)
         for idx, data in enumerate(tqdm(self.anim_dataset, desc="Animation")):
+            if idx % k != 0:
+                continue
             human_gs_out, scene_gs_out = None, None
             
             if self.human_gs:

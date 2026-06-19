@@ -21,6 +21,7 @@ cfg.logdir_ckpt = ''
 cfg.eval = False
 cfg.bg_color = 'white'
 cfg.save_anim_ply = True  # save per-frame posed .ply files during animation (deformed/animated position)
+cfg.anim_subsample_k = 1  # export every k-th frame (1=all, 2=half, 4=quarter)
 
 # human dataset configuration
 cfg.dataset = OmegaConf.create()
